@@ -1,0 +1,759 @@
+
+\documentclass[a4paper,11pt]{article}
+\usepackage[a4paper, margin=8em]{geometry}
+
+% usa i pacchetti per la scrittura in italiano
+\usepackage[french,italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\frenchspacing 
+
+% usa i pacchetti per la formattazione matematica
+\usepackage{amsmath, amssymb, amsthm, amsfonts}
+
+% usa altri pacchetti
+\usepackage{gensymb}
+\usepackage{hyperref}
+\usepackage{standalone}
+
+\usepackage{colortbl}
+
+\usepackage{xstring}
+\usepackage{karnaugh-map}
+
+% imposta il titolo
+\title{Embedded Operating Systems and Architectures notes}
+\author{Luca Seggiani}
+\date{2026}
+
+% imposta lo stile
+% usa helvetica
+\usepackage[scaled]{helvet}
+% usa palatino
+\usepackage{palatino}
+% usa un font monospazio guardabile
+\usepackage{lmodern}
+
+\renewcommand{\rmdefault}{ppl}
+\renewcommand{\sfdefault}{phv}
+\renewcommand{\ttdefault}{lmtt}
+
+% circuiti
+\usepackage{circuitikz}
+\usetikzlibrary{babel}
+
+% testo cerchiato
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
+
+% disponi il titolo
+\makeatletter
+\renewcommand{\maketitle} {
+	\begin{center} 
+		\begin{minipage}[t]{.8\textwidth}
+			\textsf{\huge\bfseries \@title} 
+		\end{minipage}%
+		\begin{minipage}[t]{.2\textwidth}
+			\raggedleft \vspace{-1.65em}
+			\textsf{\small \@author} \vfill
+			\textsf{\small \@date}
+		\end{minipage}
+		\par
+	\end{center}
+
+	\thispagestyle{empty}
+	\pagestyle{fancy}
+}
+\makeatother
+
+% disponi teoremi
+\usepackage{tcolorbox}
+\newtcolorbox[auto counter, number within=section]{theorem}[2][]{%
+	colback=blue!10, 
+	colframe=blue!40!black, 
+	sharp corners=northwest,
+	fonttitle=\sffamily\bfseries, 
+	title=Theorem~\thetcbcounter: #2, 
+	#1
+}
+
+% disponi definizioni
+\newtcolorbox[auto counter, number within=section]{definition}[2][]{%
+	colback=red!10,
+	colframe=red!40!black,
+	sharp corners=northwest,
+	fonttitle=\sffamily\bfseries,
+	title=Definition~\thetcbcounter: #2,
+	#1
+}
+
+% disponi codice
+\usepackage{listings}
+\usepackage[table]{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{codestyle}{
+		backgroundcolor=\color{black!5}, 
+		commentstyle=\color{codegreen},
+		keywordstyle=\bfseries\color{magenta},
+		numberstyle=\sffamily\tiny\color{black!60},
+		stringstyle=\color{green!50!black},
+		basicstyle=\ttfamily\footnotesize,
+		breakatwhitespace=false,         
+		breaklines=true,                 
+		captionpos=b,                    
+		keepspaces=true,                 
+		numbers=left,                    
+		numbersep=5pt,                  
+		showspaces=false,                
+		showstringspaces=false,
+		showtabs=false,                  
+		tabsize=2
+}
+
+\lstdefinestyle{shellstyle}{
+		backgroundcolor=\color{black!5}, 
+		basicstyle=\ttfamily\footnotesize\color{black}, 
+		commentstyle=\color{black}, 
+		keywordstyle=\color{black},
+		numberstyle=\color{black!5},
+		stringstyle=\color{black}, 
+		showspaces=false,
+		showstringspaces=false, 
+		showtabs=false, 
+		tabsize=2, 
+		numbers=none, 
+		breaklines=true
+}
+
+\lstdefinelanguage{x86}{ 
+  keywords={AAA, AAD, AAM, AAS, ADC, ADCB, ADCW, ADCL, ADD, ADDB, ADDW, ADDL, AND, ANDB, ANDW, ANDL,
+        ARPL, BOUND, BSF, BSFL, BSFW, BSR, BSRL, BSRW, BSWAP, BT, BTC, BTCB, BTCW, BTCL, BTR, 
+        BTRB, BTRW, BTRL, BTS, BTSB, BTSW, BTSL, CALL, CBW, CDQ, CLC, CLD, CLI, CLTS, CMC, CMP,
+        CMPB, CMPW, CMPL, CMPS, CMPSB, CMPSD, CMPSW, CMPXCHG, CMPXCHGB, CMPXCHGW, CMPXCHGL,
+        CMPXCHG8B, CPUID, CWDE, DAA, DAS, DEC, DECB, DECW, DECL, DIV, DIVB, DIVW, DIVL, ENTER,
+        HLT, IDIV, IDIVB, IDIVW, IDIVL, IMUL, IMULB, IMULW, IMULL, IN, INB, INW, INL, INC, INCB,
+        INCW, INCL, INS, INSB, INSD, INSW, INT, INT3, INTO, INVD, INVLPG, IRET, IRETD, JA, JAE,
+        JB, JBE, JC, JCXZ, JE, JECXZ, JG, JGE, JL, JLE, JMP, JNA, JNAE, JNB, JNBE, JNC, JNE, JNG,
+        JNGE, JNL, JNLE, JNO, JNP, JNS, JNZ, JO, JP, JPE, JPO, JS, JZ, LAHF, LAR, LCALL, LDS,
+        LEA, LEAVE, LES, LFS, LGDT, LGS, LIDT, LMSW, LOCK, LODSB, LODSD, LODSW, LOOP, LOOPE,
+        LOOPNE, LSL, LSS, LTR, MOV, MOVB, MOVW, MOVL, MOVSB, MOVSD, MOVSW, MOVSX, MOVSXB,
+        MOVSXW, MOVSXL, MOVZX, MOVZXB, MOVZXW, MOVZXL, MUL, MULB, MULW, MULL, NEG, NEGB, NEGW,
+        NEGL, NOP, NOT, NOTB, NOTW, NOTL, OR, ORB, ORW, ORL, OUT, OUTB, OUTW, OUTL, OUTSB, OUTSD,
+        OUTSW, POP, POPL, POPW, POPB, POPA, POPAD, POPF, POPFD, PUSH, PUSHL, PUSHW, PUSHB, PUSHA, 
+        RCLL, RCR, RCRB, RCRW, RCRL, RDMSR, RDPMC, RDTSC, REP, REPE, REPNE, RET, ROL, ROLB, ROLW,
+        ROLL, ROR, RORB, RORW, RORL, SAHF, SAL, SALB, SALW, SALL, SAR, SARB, SARW, SARL, SBB,
+        SBBB, SBBW, SBBL, SCASB, SCASD, SCASW, SETA, SETAE, SETB, SETBE, SETC, SETE, SETG, SETGE,
+        SETL, SETLE, SETNA, SETNAE, SETNB, SETNBE, SETNC, SETNE, SETNG, SETNGE, SETNL, SETNLE,
+        SETNO, SETNP, SETNS, SETNZ, SETO, SETP, SETPE, SETPO, SETS, SETZ, SGDT, SHL, SHLB, SHLW,
+        SHLL, SHLD, SHR, SHRB, SHRW, SHRL, SHRD, SIDT, SLDT, SMSW, STC, STD, STI, STOSB, STOSD,
+        STOSW, STR, SUB, SUBB, SUBW, SUBL, TEST, TESTB, TESTW, TESTL, VERR, VERW, WAIT, WBINVD,
+        XADD, XADDB, XADDW, XADDL, XCHG, XCHGB, XCHGW, XCHGL, XLAT, XLATB, XOR, XORB, XORW, XORL},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{\#},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{riscv}{
+  keywords={
+    LUI, AUIPC,
+    JAL, JALR,
+    BEQ, BNE, BLT, BGE, BLTU, BGEU,
+    LB, LH, LW, LBU, LHU, LD,
+    SB, SH, SW, SD,
+    ADDI, SLTI, SLTIU, XORI, ORI, ANDI,
+    SLLI, SRLI, SRAI,
+    ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND,
+    ADDIW, SLLIW, SRLIW, SRAIW,
+    ADDW, SUBW, SLLW, SRLW, SRAW,
+    MUL, MULH, MULHSU, MULHU, DIV, DIVU, REM, REMU,
+    MULW, DIVW, DIVUW, REMW, REMUW,
+    LR.W, SC.W, AMOSWAP.W, AMOADD.W, AMOXOR.W,
+    AMOAND.W, AMOOR.W, AMOMIN.W, AMOMAX.W,
+    AMOMINU.W, AMOMAXU.W,
+    LR.D, SC.D, AMOSWAP.D, AMOADD.D, AMOXOR.D,
+    AMOAND.D, AMOOR.D, AMOMIN.D, AMOMAX.D,
+    AMOMINU.D, AMOMAXU.D,
+    FLW, FSW,
+    FMADD.S, FMSUB.S, FNMSUB.S, FNMADD.S,
+    FADD.S, FSUB.S, FMUL.S, FDIV.S, FSQRT.S,
+    FSGNJ.S, FSGNJN.S, FSGNJX.S,
+    FMIN.S, FMAX.S,
+    FCVT.W.S, FCVT.WU.S, FCVT.S.W, FCVT.S.WU,
+    FMV.X.W, FMV.W.X,
+    FEQ.S, FLT.S, FLE.S,
+    FLD, FSD,
+    FMADD.D, FMSUB.D, FNMSUB.D, FNMADD.D,
+    FADD.D, FSUB.D, FMUL.D, FDIV.D, FSQRT.D,
+    FSGNJ.D, FSGNJN.D, FSGNJX.D,
+    FMIN.D, FMAX.D,
+    FCVT.W.D, FCVT.WU.D, FCVT.D.W, FCVT.D.WU,
+    FCVT.S.D, FCVT.D.S,
+    FMV.X.D, FMV.D.X,
+    FEQ.D, FLT.D, FLE.D,
+    CSRRW, CSRRS, CSRRC,
+    CSRRWI, CSRRSI, CSRRCI,
+    FENCE.I,
+    FENCE,
+    ECALL, EBREAK,
+    MRET, SRET, URET,
+    WFI,
+    SFENCE.VMA,
+    NOP, LI, LA, MV,
+    NOT, NEG, NEGW,
+    SEQZ, SNEZ, SLTZ, SGTZ,
+    BEQZ, BNEZ, BLEZ, BGEZ, BLTZ, BGTZ,
+    BGT, BLE, BGTU, BLEU,
+    J, JR, RET,
+    CALL, TAIL,
+    RDINSTRET, RDCYCLE, RDTIME,
+    CSRR, CSRW, CSRS, CSRC,
+    CSRWI, CSRSI, CSRCI
+  },
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{\#},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{arm}{
+  keywords={
+    ADC, ADD, AND, BIC, CMN, CMP, EOR, MOV, MVN,
+    RSB, RSC, SBC, SUB, TST, TEQ,
+    MLA, MLS, MUL, SMLAL, SMULL, UMLAL, UMULL,
+    QADD, QSUB, QDADD, QDSUB,
+    QADD16, QADD8, QASX, QSAX,
+    QSUB16, QSUB8, QSAX, QSUBADDX,
+    ASR, LSL, LSR, ROR, RRX,
+    B, BL, BX, BLX,
+    BXJ,
+    BEQ, BNE, BCS, BHS, BCC, BLO,
+    BMI, BPL, BVS, BVC,
+    BHI, BLS, BGE, BLT, BGT, BLE,
+    BAL,
+    LDR, LDRB, LDRH, LDRSB, LDRSH,
+    LDRD, LDM, LDMIA, LDMIB, LDMDA, LDMDB,
+    LDRT, LDRBT, LDRHT, LDRSBT, LDRSHT,
+    STR, STRB, STRH, STRD,
+    STM, STMIA, STMIB, STMDA, STMDB,
+    STRT, STRBT, STRHT,
+    PUSH, POP,
+    SWP, SWPB,
+    REV, REV16, REVSH,
+    BFC, BFI, BFXIL, SBFX, UBFX,
+    CLZ,
+    LDREX, LDREXB, LDREXH, LDREXD,
+    STREX, STREXB, STREXH, STREXD,
+    DMB, DSB, ISB,
+    MCR, MCRR, MRC, MRRC,
+    MRS, MSR,
+    CPS, SETEND, SVC, BKPT,
+    CLREX, WFE, WFI, SEV,
+    YIELD, NOP,
+    VLDR, VSTR,
+    VMOV, VABS, VNEG,
+    VADD, VSUB, VMUL, VDIV,
+    VMLA, VMLS, VNMLA, VNMLS, VNMUL,
+    VMAX, VMIN,
+    VSQRT,
+    VCMP, VCMPE,
+    VCVT,
+    VCLZ, VCLS,
+    VAND, VORR, VEOR, VBIC, VMVN,
+    VLD1, VLD2, VLD3, VLD4,
+    VST1, VST2, VST3, VST4,
+    ADR, ADCS, ADDS, SUBS, MOVS, ANDS, ORRS, EORS
+  },
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{@},
+  morecomment=[l]{;},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{style=codestyle, language=C}
+
+% disponi sezioni
+\usepackage{titlesec}
+
+\titleformat{\section}
+	{\sffamily\Large\bfseries} 
+	{\thesection}{1em}{} 
+\titleformat{\subsection}
+	{\sffamily\large\bfseries}   
+	{\thesubsection}{1em}{} 
+\titleformat{\subsubsection}
+	{\sffamily\normalsize\bfseries} 
+	{\thesubsubsection}{1em}{}
+
+% tikz
+\usepackage{tikz}
+
+% float
+\usepackage{float}
+
+% grafici
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+% disponi alberi
+\usepackage{forest}
+
+\forestset{
+	rectstyle/.style={
+		for tree={rectangle,draw,font=\large\sffamily}
+	},
+	roundstyle/.style={
+		for tree={circle,draw,font=\large}
+	}
+}
+
+% disponi algoritmi
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\makeatletter
+\renewcommand{\ALG@name}{Algorithm}
+\makeatother
+
+% disponi numeri di pagina
+\usepackage{fancyhdr}
+\fancyhf{} 
+\fancyfoot[L]{\sffamily{\thepage}}
+
+\makeatletter
+\fancyhead[L]{\raisebox{1ex}[0pt][0pt]{\sffamily{\@title \ \@date}}} 
+\fancyhead[R]{\raisebox{1ex}[0pt][0pt]{\sffamily{\@author}}}
+\makeatother
+
+\begin{document}
+% sezione (data)
+\section{Lesson 23-09-26}
+
+% stili pagina
+\thispagestyle{empty}
+\pagestyle{fancy}
+
+% testo
+\subsection{Introduction}
+
+Computing systems are everywhere: cars, trains, aircraft, satellites, medical devices, printers, phones, industrial controllers.
+In an \textbf{embedded} system, we consider \textit{software plus hardware}, not software alone: the program only makes sense together with the machine it drives.
+Complexity is growing dramatically.
+A modern car carries $\approx$ 100 electronic control units and on the order of $10^8$ lines of on-board code, against a handful of hundreds of lines in the 1970s.
+
+\subsubsection{Operating systems}
+
+The natural question to ask is \textit{why} an embedded system might need an operating system.
+The answers are many:
+
+\begin{itemize}
+	\item
+	      Bare metal applications no longer cope with the complexity even in
+	      the embedded systems domain;
+	\item
+	      \textbf{An operating system raises the abstraction level:} it gives
+	      application code a small set of rules and services instead of ad-hoc
+	      hardware handling;
+\end{itemize}
+Our goal is to connect three things that are usually taught apart:
+\textbf{computer architecture}, \textbf{operating systems}, and the
+\textbf{computer system} that has to run both.
+
+\subsubsection{Topics}
+
+The main roadmap of the course is:
+
+\begin{itemize}
+	\item
+	      We will connect operating-system concepts to executable embedded
+	      software;
+	\item
+	      This course lives in the \textbf{platform} layer of a computing node:
+	      from the hardware up to the system-call interface, with the
+	      application used as the thing that exercises it.
+\end{itemize}
+
+The covered topics are:
+
+\begin{itemize}
+	\item
+	      \textbf{Minimal computing-system architecture} --- juste enough to
+	      write operating systems code;
+	\item
+	      \textbf{Bare-metal development flow} --- cross-compilation, emulators
+	      and simulators, debugging and profiling, virtual platforms;
+	\item
+	      \textbf{Operating systems for embedded systems} --- real-time and
+	      process scheduling, the anatomy of an embedded OS, architecture and
+	      services of real systems (FreeRTOS);
+	\item
+	      \textbf{Programming an embedded OS} --- building it, device management
+	      and drivers, drivers for custom devices.
+\end{itemize}
+
+\subsection{Introduction to embedded operating systems}
+
+An \textbf{OS} (\textit{Operating System}) is nothing but a program, with a very simple purpose: to mediate between hardware and the programs that use it.
+
+There are three classic ways to draw that boundary:
+\begin{itemize}
+	\item \textbf{Monolithic}: kernel is one large program; drivers, filesystems, scheduling all share one address space. Both Linux and Windows fit this description.
+
+	      Monolithic kernels are simple to implement once the task switching machinery is running: once we can switch to kernel mode, we can touch any resource available to the system to carry out tasks;
+	\item \textbf{Microkernel}: kernel does the bare minimum (IPC, scheduling, basic memory); everything else runs as separate services.
+
+	      Microkernels are interesting because they are inherently safer: the service handling the filesystem, for instance, cannot corrupt other services on failure (as it runs itself as a protected service with no access to other resources).
+	      The problem comes up when complex tasks have to performed: the main overhead is given by the IPC and scheduling facilities which sit inbetween services;
+	\item \textbf{Flat}: no kernel/user separation at all; a small set of statically-defined tasks share the CPU under one scheduler.
+
+	      This is important to us because embedded systems often don't feature protection systems, and as we know complete protection is impossible without hardware support.
+\end{itemize}
+
+The core of the operating system is basically the \textit{scheduler}: everything else can be seen as a task either the operating system or the user programs carry out, based on the resources allocated by the scheduler.
+
+\subsubsection{Hardware resources}
+
+The purpose of an OS is to make hardware \textit{usable}.
+Without an OS, every application must decide how to initialise the CPU, program a timer, share a UART, and recover from an interrupt.
+An OS supplies a small set of rules and mechanisms so application code can ask for useful services instead of repeatedly rebuilding hardware policy.
+
+The resources are finite, especially on a small board:
+\begin{itemize}
+	\item \textbf{CPU time}: which ready task runs now? We also haveto take into account the fact that CPUs interact with many other devices on the same board;
+	\item \textbf{memory}: which code and data occupy RAM and Flash?
+	\item \textbf{devices}: who may configure a timer or consume a received byte?
+	\item \textbf{events}: how does an interrupt become work for the right task?
+\end{itemize}
+
+\subsubsection{Types of operating systems}
+
+The three labels we gave earlier describe where operating-system services execute and
+how strongly they are isolated.
+
+\begin{table}[H]
+	\center \rowcolors{2}{white}{black!10}
+	\begin{tabular} { c | c | c }
+		\bfseries Type & \bfseries Services offered     & \bfseries Tradeoff          \\
+		\hline
+		Monolithic     & Together in kernel space       & Direct calls, large trusted
+		core                                                                          \\
+		Microkernel    & Mostly as separate servers     & Isolation, IPC
+		overhead/design                                                               \\
+		Flat           & Together in one firmware image & Tiny and direct, little
+		isolation                                                                     \\
+	\end{tabular}
+\end{table}
+
+\textbf{\textsf{Monolithic}}
+A monolithic kernel puts scheduling, drivers, filesystems, and
+networking in one kernel address space. Services can call each other
+directly and quickly.
+
+\begin{itemize}
+	\item
+	      Linux is the familiar large-scale example
+	\item
+	      A faulty driver can corrupt kernel state
+	\item
+	      The design is practical when the feature set is broad and tightly
+	      coupled
+\end{itemize}
+
+On a protected machine, applications normally execute outside this
+trusted kernel address space.
+
+\par\smallskip
+
+\textbf{\textsf{Microkernel}}
+A microkernel retains only the most fundamental mechanisms in the
+kernel, usually scheduling, address-space management, and inter-process
+communication.
+
+Drivers and other services become separate programs that exchange
+messages.
+
+\begin{itemize}
+	\item
+	      Smaller trusted computing base
+	\item
+	      A service failure can be contained or restarted
+	\item
+	      More interfaces and message paths to design correctly
+\end{itemize}
+
+seL4 and QNX are useful reference points for this family.
+
+\par\smallskip
+
+\textbf{\textsf{Flat}}
+Flat embedded firmware usually has one linked image and one physical
+address space. Tasks cooperate through shared memory and the scheduler.
+
+There is no process loader, no virtual-memory translation, and usually
+no hardware-enforced boundary between tasks.
+This puts more pressure on software developers, as user code must be free of bugs which could potentially crash the whole operating system.
+This is particularly critical in systems like vehicles, medical or industrial.
+We know that monolithic operating systems give us an extra layer of safety, by switching to a safer kernel mode to perform critical tasks, which user code can't normally access.
+
+\subsubsection{Operating system roadmap}
+
+Where does this course sit in this hierachy?
+
+\begin{itemize}
+	\item
+	      \textbf{Linux} (a monolithic kernel) and \textit{seL4/QNX} (microkernels) are the extremes we'll read about;
+	\item
+	      This course builds \textbf{flat} first (\texttt{scratch-os}) --- the simplest point on the spectrum, and the one that makes the boot-to-scheduling pipeline fully visible.
+	      \texttt{scratch-os} is intentionally small. Its value is that every important step
+	      can fit in mind;
+	\item
+	      Then \textbf{FreeRTOS} --- closer to a minimal microkernel-flavored RTOS: a small kernel, real scheduling policies, but still no memory protection between tasks by default.
+
+	      FreeRTOS provides established implementations of the mechanisms we first
+	      meet in \texttt{scratch-os}:
+
+	      \begin{itemize}
+		      \item
+		            Task creation and priorities;
+		      \item
+		            Delay and timer-driven scheduling;
+		      \item
+		            Queues, semaphores, and mutexes;
+		      \item
+		            Interrupt-to-task communication.
+	      \end{itemize}
+
+	      The comparison matters: an API call becomes easier to reason about when
+	      its underlying state transitions are no longer invisible.
+\end{itemize}
+
+\subsubsection{Real-time operating systems}
+
+The \textbf{real-time} label applied to an OS is about \textit{bounded response}, not raw speed.
+The idea is that we can know exactly how long a task will take before executing it.
+A result computed after its deadline can be a failure even when its value is otherwise correct.
+This is particularly useful in embedded systems which might have external (e.g. physical) constranints, in addition to technical ones.
+
+\begin{table}[h!]
+	\center \rowcolors{2}{white}{black!10}
+	\begin{tabular} { c | c  }
+		\bfseries Requirement & \bfseries Example                         \\
+		\hline
+		Functional            & sample a sensor correctly                 \\
+		Temporal              & sample it every 1 ms, before the deadline \\
+		Robustness            & continue safely when one input is missing \\
+	\end{tabular}
+\end{table}
+
+\subsubsection{Embedded operating systems}
+
+\textbf{Embedded} operating systems usually look different than traditional ones:
+
+\begin{itemize}
+	\item
+	      \textbf{Resource-constrained}: kilobytes of RAM/flash, not gigabytes
+	      --- no room for a general-purpose kernel's overhead;
+	\item
+	      \textbf{Real-time}: correctness often depends on \emph{when} something
+	      happens, not just \emph{whether} it happens;
+	\item
+	      \textbf{No user protection needed (usually)}: one vendor, one firmware
+	      image, one set of tasks --- the isolation problems a desktop OS solves
+	      mostly don't apply here.
+
+	      This is mainly a cost problem: it's not that car manufactures don't \textit{want} safety in their devices, but that that CPUs which don't feature protection mechanisms are usually cheaper;
+	\item
+	      These constraints are why \texttt{scratch-os} can be simple and still
+	      be a real, working OS.
+\end{itemize}
+
+An embedded OS is selected and configured around a particular product,
+not an unknown future workload.
+
+\begin{itemize}
+	\item
+	      Static task counts and fixed buffers can replace dynamic allocation;
+	\item
+	      A simple priority scheduler can replace a general-purpose fairness
+	      policy;
+	\item
+	      Direct register access can replace a layered device stack;
+	\item
+	      Predictable execution is often more valuable than maximum throughput.
+\end{itemize}
+
+Small is not incomplete when it matches the system's responsibilities.
+
+Many \textbf{MCU} (\textit{Micro Controller Unit}) products ship one firmware image that includes startup code,
+drivers, the OS, and application logic. Updating that image changes the
+whole system.
+
+This simplifies deployment, but it raises the bar for discipline:
+
+\begin{itemize}
+	\item
+	      a bad pointer can damage any writable state
+	\item
+	      a blocked high-priority task can stop an important service
+	\item
+	      recovery and observability must be designed into the firmware
+\end{itemize}
+
+Later, we will see how scheduling and synchronisation reduce these
+risks.
+
+\subsubsection{Embedded systems}
+
+There are many ways we can classify \textbf{embedded systems}:
+
+\begin{itemize}
+	\item
+	      A computer built into a larger device to do \textbf{one dedicated job}
+	      --- not a general-purpose machine you install arbitrary software on;
+	\item
+	      Hardware + software (often called \emph{firmware}) shipped as one
+	      unit; the end user never sees a shell or a package manager;
+	\item
+	      Everywhere: engine controllers, pacemakers, drones, washing machines,
+	      Wi-Fi routers, the microcontroller in a USB charger;
+	\item
+	      The population of embedded processors passed the human population
+	      decades ago --- most CPUs made are never in a ``computer''.
+\end{itemize}
+
+We can compare embedded systems to general-purpose ones (such as modern computer or phone operating systems):
+
+\begin{table}[h!]
+	\center \rowcolors{2}{white}{black!10}
+	\begin{tabular} { c | c | c }
+		           & \bfseries Embedded   & \bfseries General-purpose  \\
+		\hline
+		Workload   & one fixed task       & anything the user installs \\
+		Resources  & KB of RAM/flash      & GB of RAM, TB of disk      \\
+		Timing     & often hard deadlines & best-effort                \\
+		User model & no interactive user  & multi-user, multi-tasking  \\
+		Cost/power & pennies, milliwatts  & dollars, tens of watts     \\
+	\end{tabular}
+\end{table}
+
+The right-hand column is what a desktop OS is built for;
+\texttt{scratch-os} targets the left-hand one, which is \emph{why} it
+can be small.
+
+\subsection{Microcontrollers}
+
+We begin to approach the device that we'll actually need to program.
+A \textbf{microcontroller} or \textbf{MCU} (\textit{Micro Controller Unit}) integrates onto a single chip what a
+desktop splits across a whole motherboard:
+
+\begin{itemize}
+	\item
+	      \textbf{CPU core} --- executes instructions (ours: ARM Cortex-M3);
+	\item
+	      \textbf{RAM} --- volatile working memory, tens of KB;
+	\item
+	      \textbf{Flash} --- non-volatile program storage; code runs directly
+	      from it;
+	\item
+	      \textbf{Peripherals} --- timers, UART, GPIO, ADC, all on-chip;
+	\item
+	      One chip, one clock, one address space --- no external memory bus to
+	      wire up, no BIOS, no disk.
+\end{itemize}
+
+Compared to desktop or handled general-purpose CPUs, we note that:
+
+\begin{itemize}
+	\item
+	      A desktop CPU is \emph{just} the core: RAM, storage, and I/O are
+	      separate chips reached over buses; an MMU gives every process its own
+	      virtual address space;
+	\item
+	      An MCU has \textbf{one flat physical address map} shared by code,
+	      data, and every peripheral register --- no MMU, no virtual memory (a
+	      Cortex-M has at most an optional MPU);
+	\item
+	      On an MCU, ``the hardware'' is \emph{memory you write to}: there is no
+	      driver layer between your code and a device register.
+\end{itemize}
+
+\subsubsection{Reset routine}
+
+As an example, let's look into what happenes to a Cortex-M CPU at reset time.
+After reset, the Cortex-M does not discover an operating system. It
+reads two words from the vector table in Flash:
+
+\begin{enumerate}
+	\item
+	      The initial value for the main stack pointer
+	\item
+	      The address of \texttt{Reset\_Handler}.
+\end{enumerate}
+
+The reset handler is our first code. It establishes the C runtime
+environment before calling \texttt{main()}.
+
+\subsubsection{Registers}
+
+The CPU operates on values held in registers. Memory is accessed
+explicitly with load and store instructions.
+
+\begin{table}[h!]
+	\center \rowcolors{2}{white}{black!10}
+	\begin{tabular} { c | c }
+		\bfseries Register role                  & \bfseries Meaning                           \\
+		\hline
+		Program Counter                          & Selects the next instruction                \\
+		Stack Pointer                            & Locates calls, local variables, saved state \\
+		General Registers / Programmer Registers & Hold operands and addresses                 \\
+		Status Register                          & Records conditions and interrupt state      \\
+	\end{tabular}
+\end{table}
+
+When an exception occurs, the processor automatically saves essential
+state on the current stack so execution can later resume.
+
+\subsubsection{Memory}
+
+We can talk about the \textit{memory} available to an MCU.
+Usually there are two kinds of memory:
+\begin{itemize}
+	\item \textbf{SRAM} / \textbf{DRAM}: not persistent, but extremely fast. Used as main program memory;
+	\item \textbf{Flash} memory: read-only, but still very fast and fit (in embedded systems) for containing code. This is in accord with the usual definition of \textit{Harvard Architecture}. We should note that most general purpose devices use the opposite architecture, that is \textit{Von Neumann Architecture} (which use program memory both for code and data).
+\end{itemize}
+
+Flash keeps its contents without power. SRAM is fast writable working
+memory whose contents disappear on reset or power loss.
+
+\begin{verbatim}
+Flash: vector table | .text | .rodata   | initial bytes for .data
+SRAM:  .data        | .bss  | heap area | stack
+\end{verbatim}
+
+This split explains why startup code must copy some bytes and clear
+others before ordinary C code can safely run.
+
+\end{document}
