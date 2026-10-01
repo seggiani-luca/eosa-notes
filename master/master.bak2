@@ -26,11 +26,6 @@
 \author{Luca Seggiani}
 \date{2026}
 
-% spaziatura liste
-\usepackage{enumitem}
-\setlist[itemize]{noitemsep, topsep=4pt, partopsep=0pt, parsep=2pt, leftmargin=*}
-\setlist[enumerate]{noitemsep, topsep=4pt, partopsep=0pt, parsep=2pt, leftmargin=*}
-
 % imposta lo stile
 % usa helvetica
 \usepackage[scaled]{helvet}
@@ -362,6 +357,4 @@
 
 \maketitle
 \input{../09-23/main.tex}
-\input{../09-30/main.tex}
-\input{../10-01/main.tex}
 \end{document}

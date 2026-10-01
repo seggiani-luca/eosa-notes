@@ -26,11 +26,6 @@
 \author{Luca Seggiani}
 \date{2026}
 
-% spaziatura liste
-\usepackage{enumitem}
-\setlist[itemize]{noitemsep, topsep=4pt, partopsep=0pt, parsep=2pt, leftmargin=*}
-\setlist[enumerate]{noitemsep, topsep=4pt, partopsep=0pt, parsep=2pt, leftmargin=*}
-
 % imposta lo stile
 % usa helvetica
 \usepackage[scaled]{helvet}
@@ -134,7 +129,6 @@
 		numbers=none, 
 		breaklines=true
 }
-
 
 \lstdefinelanguage{x86}{ 
   keywords={AAA, AAD, AAM, AAS, ADC, ADCB, ADCW, ADCL, ADD, ADDB, ADDW, ADDL, AND, ANDB, ANDW, ANDL,
@@ -355,13 +349,183 @@
 \makeatother
 
 \begin{document}
+% sezione (data)
+\section{Lesson 01-10-26}
 
-\pagestyle{fancy}
+% stili pagina
 \thispagestyle{empty}
-\renewcommand{\thispagestyle}[1]{}
+\pagestyle{fancy}
 
-\maketitle
-\input{../09-23/main.tex}
-\input{../09-30/main.tex}
-\input{../10-01/main.tex}
+% testo
+\subsection{Freestanding C}
+
+\lstset{language=c}
+
+The C standard defines two kinds of environment:
+\begin{itemize}
+	\item \textbf{Hosted}: C library (\texttt{libc}) and an OS sit under the user code, library functions such as \lstinline|prinf()|, \lstinline|malloc()|, \lstinline|fopen()| are available. \lstinline|main()| is called by the \texttt{libc} startup code, called by the OS. Of course, each OS implementation implements its own \texttt{libc} (GNU/Linux, Windows, ...). There are even versions of \texttt{libc} which run on bare metal (\texttt{newlib});
+	\item \textbf{Freestanding}: nothing stis under the user code, no library functions are available and nobody calls \lstinline|main()| (the default entry point is the reset handler).
+\end{itemize}
+
+We will be using a \textit{freestanding} environment from now on.
+
+\par\smallskip
+\textbf{\textsf{System calls}}
+
+In fact, \texttt{libc} in Linux is only an interface between user code and the OS: a call to a \texttt{libc} function in Linux means:
+\begin{itemize}
+	\item Performing a little setup work in userland, via the \texttt{libc} implementations;
+	\item Performing some kind of \textit{system call}, which leaves the CPU to the kernel;
+	\item Waiting for the kernel to carry out our system call;
+	\item Getting the result back from \texttt{libc}.
+\end{itemize}
+
+We decide to opt out of libraries like \texttt{libc} because they still need architecture-specific hooks (\texttt{write}, \texttt{crt0}, ...) hooks to be implemented: we're better off doing everything ourselves.
+
+\par\smallskip
+\textbf{\textsf{Compiler helpers}}
+
+One piece of help we will use is the \textit{compiler helpers} provided by the \textbf{GCC} (\textit{Gnu Compiler Collection}) toolchain we use.
+These implement some basic C operators (such as divide and modulo), which may not be implemented in hardware.
+Was someone to be curious, some example helpers can be found at \url{https://github.com/seggiani-luca/micro-sim/blob/main/eprom/src/lib/helpers.cpp} (there are likely cleaner and better implemented one somewhere in the GCC source).
+
+\subsubsection{Semihosting}
+
+We still need to be able to print stuff to console.
+The solution we will use is \textbf{semihosting}: the target asks the \textit{host} (our machine) to perform the I/O.
+
+\begin{enumerate}
+\item The program puts an operation code in \texttt{r0} (\texttt{0x04} = \texttt{SYS\_WRITE0}) and the string address in \texttt{r1}. \texttt{SYS\_WRITE0} is the opcode for "print this NULL-terminated string";
+
+\item It executes \texttt{bkpt 0xab}: a breakpoint instruction with a special number;
+
+\item QEMU (or a debugger) sees the breakpoint, reads \texttt{r0} and \texttt{r1}, reads the string from target memory, and prints it \textbf{on your laptop};
+
+\item The program resumes after the \texttt{bkpt}.
+
+\end{enumerate}
+
+This only works with a debugger or emulator attached (e.g., \texttt{-semihosting} in \texttt{make run}). On a real board without a debugger, \texttt{bkpt} would simply stop the CPU.
+
+\par\smallskip
+\textbf{\textsf{In code}}
+
+In code, this translates to:
+\begin{lstlisting}[language=C++, style=codestyle]	
+static void semihost_write0( const char *message )
+{
+    register uint32_t    r0 __asm__( "r0" ) = 0x04;    /* SYS_WRITE0 */
+    register const char *r1 __asm__( "r1" ) = message; /* string address */
+    __asm__ volatile ( "bkpt 0xab" : : "r"( r0 ), "r"( r1 ) : "memory" );
+}
+\end{lstlisting}
+
+Let's look at what \texttt{bkpt 0xab} really does:
+
+\begin{itemize}
+\item The program \textbf{stops} doing its own work;
+\item Control passes to \textbf{someone more powerful} (QEMU, outside the CPU);
+\item That someone performs the job and \textbf{hands control back}.
+\end{itemize}
+
+This is the same shape as a system call on Linux: your program cannot drive the terminal itself, so it \textbf{asks the kernel} to do it.
+
+Next question: can the Cortex-M3 itself have a `powerful'' part and a `restricted'' part, like kernel mode and user mode? \textbf{Yes}: privileged and unprivileged execution, next slide.
+
+\subsection{Privilege level}
+
+Even if our implementation of an OS will be \textit{flat}, let's go over \textbf{privilege} levels in our ARM Cortex-M3 CPU.
+
+W know that an \textit{OS kernel} runs in kernel mode, where as an applications runs in \textit{user mode}. Cortex-M3 has the same idea in hardware:
+\begin{itemize}
+	\item \textbf{Handler mode}: used when running an exception handler, always privileged;
+	\item \textbf{Thread mode}: normal mode used for user code, can be privileged or unprivileged.
+\end{itemize}
+
+After reset we find the CPU in thread mode, privileged.
+We have to manually set the CPU to unprivileged thread mode if we want protection on user code.
+
+A special CPU register (not in memory) selects Thread-mode privilege:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{c l l}
+\hline
+\textbf{Bit} & \textbf{Name} & \textbf{Meaning} \\
+\hline
+0 & \textbf{nPRIV} & 0 = privileged, 1 = unprivileged (Thread mode only) \\
+1 & SPSEL & selects which stack pointer Thread mode uses (not used here) \\
+\hline
+\end{tabular}
+\end{table}
+
+Special registers are reached with two dedicated instructions:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{c l}
+\hline
+\textbf{Instruction} & \textbf{C equivalent} \\
+\hline
+\texttt{mrs r0, control} & \texttt{r0 = CONTROL;} \quad (read special register) \\
+\texttt{msr control, r0} & \texttt{CONTROL = r0;} \quad (write special register) \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Dropping privilege}
+
+So, for example, to drop our privilege lever to unprivileged:
+\begin{lstlisting}[language=arm, style=codestyle]	
+mrs r0, control     @ r0 = CONTROL
+orr r0, r0, #1      @ r0 = r0 | 1      (set nPRIV)
+msr control, r0     @ CONTROL = r0     -> now unprivileged
+isb                 @ discard instructions already fetched under old rules
+\end{lstlisting}
+
+Writing CONTROL is itself a privileged operation: an unprivileged \texttt{msr control}, ... is ignored. Code cannot promote itself back.
+The only ways back to privileged: reset, or an exception (its handler runs in Handler mode, always privileged).
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{10cm} p{5cm}}
+\hline
+\textbf{Attempt} & \textbf{Result} \\
+\hline
+Read/write the \textbf{System Control Space} (\texttt{0xE000E000} \ldots):
+SysTick, NVIC, SCB (VTOR, SHCSR, CCR, priorities)
+& \textbf{BusFault} \\
+
+\texttt{msr control, r0} (raise privilege back)
+& ignored \\
+
+\texttt{cpsid i} / \texttt{cpsie i} (mask interrupts)
+& ignored \\
+
+Semihosting \texttt{bkpt 0xab}
+& QEMU refuses it by default $\rightarrow$ fault \\
+\hline
+\end{tabular}
+\end{table}
+
+Ordinary RAM, Flash, and user code still work normally. The restricted code simply cannot \textbf{reconfigure} the machine or silence it.
+
+\subsubsection{Raising privilege}
+
+Unprivileged code cannot touch the hardware, but it can still \textit{call} privileged mode handlers: 
+\texttt{svc \#n} (\textit{SuperVisor Call}) is allowed in unprivileged code.
+
+\begin{enumerate}
+	\item 
+It raises the \textbf{SVCall exception} (vector-table entry 11, \texttt{SVC\_Handler}).
+The CPU enters \textbf{Handler mode}, and the corresponding handler runs privileged;
+	\item
+When the handler returns, the CPU goes back to the instruction after \texttt{svc}, still \textbf{unprivileged}.
+
+\end{enumerate}
+
+\texttt{\#n} is a small number encoded in the instruction. Real kernels use a request number and arguments to tell which service is wanted; here we only use \texttt{svc \#0}.
+
+This allows us to implement what effectively are \textbf{system calls}.
+
 \end{document}

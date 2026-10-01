@@ -23,8 +23,8 @@
 
 % imposta il titolo
 \title{Embedded Operating Systems and Architectures notes}
-\author{Luca Seggiani}
-\date{2026}
+\author{author-tag}
+\date{year-tag}
 
 % spaziatura liste
 \usepackage{enumitem}
@@ -361,7 +361,3 @@
 \renewcommand{\thispagestyle}[1]{}
 
 \maketitle
-\input{../09-23/main.tex}
-\input{../09-30/main.tex}
-\input{../10-01/main.tex}
-\end{document}

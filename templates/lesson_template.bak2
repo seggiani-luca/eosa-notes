@@ -22,14 +22,9 @@
 \usepackage{karnaugh-map}
 
 % imposta il titolo
-\title{Embedded Operating Systems and Architectures notes}
-\author{Luca Seggiani}
-\date{2026}
-
-% spaziatura liste
-\usepackage{enumitem}
-\setlist[itemize]{noitemsep, topsep=4pt, partopsep=0pt, parsep=2pt, leftmargin=*}
-\setlist[enumerate]{noitemsep, topsep=4pt, partopsep=0pt, parsep=2pt, leftmargin=*}
+\title{title-tag notes}
+\author{author-tag}
+\date{year-tag}
 
 % imposta lo stile
 % usa helvetica
@@ -134,7 +129,6 @@
 		numbers=none, 
 		breaklines=true
 }
-
 
 \lstdefinelanguage{x86}{ 
   keywords={AAA, AAD, AAM, AAS, ADC, ADCB, ADCW, ADCL, ADD, ADDB, ADDW, ADDL, AND, ANDB, ANDW, ANDL,
@@ -355,13 +349,13 @@
 \makeatother
 
 \begin{document}
+% sezione (data)
+\section{Lesson date-tag}
 
-\pagestyle{fancy}
+% stili pagina
 \thispagestyle{empty}
-\renewcommand{\thispagestyle}[1]{}
+\pagestyle{fancy}
 
-\maketitle
-\input{../09-23/main.tex}
-\input{../09-30/main.tex}
-\input{../10-01/main.tex}
-\end{document}
+% testo
+
+

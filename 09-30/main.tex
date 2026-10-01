@@ -1,0 +1,1185 @@
+
+\documentclass[a4paper,11pt]{article}
+\usepackage[a4paper, margin=8em]{geometry}
+
+% usa i pacchetti per la scrittura in italiano
+\usepackage[french,italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\frenchspacing 
+
+% usa i pacchetti per la formattazione matematica
+\usepackage{amsmath, amssymb, amsthm, amsfonts}
+
+% usa altri pacchetti
+\usepackage{gensymb}
+\usepackage{hyperref}
+\usepackage{standalone}
+
+\usepackage{colortbl}
+
+\usepackage{xstring}
+\usepackage{karnaugh-map}
+
+% imposta il titolo
+\title{Embedded Operating Systems and Architectures notes}
+\author{Luca Seggiani}
+\date{2026}
+
+% imposta lo stile
+% usa helvetica
+\usepackage[scaled]{helvet}
+% usa palatino
+\usepackage{palatino}
+% usa un font monospazio guardabile
+\usepackage{lmodern}
+
+\renewcommand{\rmdefault}{ppl}
+\renewcommand{\sfdefault}{phv}
+\renewcommand{\ttdefault}{lmtt}
+
+% circuiti
+\usepackage{circuitikz}
+\usetikzlibrary{babel}
+
+% testo cerchiato
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
+
+% disponi il titolo
+\makeatletter
+\renewcommand{\maketitle} {
+	\begin{center} 
+		\begin{minipage}[t]{.8\textwidth}
+			\textsf{\huge\bfseries \@title} 
+		\end{minipage}%
+		\begin{minipage}[t]{.2\textwidth}
+			\raggedleft \vspace{-1.65em}
+			\textsf{\small \@author} \vfill
+			\textsf{\small \@date}
+		\end{minipage}
+		\par
+	\end{center}
+
+	\thispagestyle{empty}
+	\pagestyle{fancy}
+}
+\makeatother
+
+% disponi teoremi
+\usepackage{tcolorbox}
+\newtcolorbox[auto counter, number within=section]{theorem}[2][]{%
+	colback=blue!10, 
+	colframe=blue!40!black, 
+	sharp corners=northwest,
+	fonttitle=\sffamily\bfseries, 
+	title=Theorem~\thetcbcounter: #2, 
+	#1
+}
+
+% disponi definizioni
+\newtcolorbox[auto counter, number within=section]{definition}[2][]{%
+	colback=red!10,
+	colframe=red!40!black,
+	sharp corners=northwest,
+	fonttitle=\sffamily\bfseries,
+	title=Definition~\thetcbcounter: #2,
+	#1
+}
+
+% disponi codice
+\usepackage{listings}
+\usepackage[table]{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{codestyle}{
+		backgroundcolor=\color{black!5}, 
+		commentstyle=\color{codegreen},
+		keywordstyle=\bfseries\color{magenta},
+		numberstyle=\sffamily\tiny\color{black!60},
+		stringstyle=\color{green!50!black},
+		basicstyle=\ttfamily\footnotesize,
+		breakatwhitespace=false,         
+		breaklines=true,                 
+		captionpos=b,                    
+		keepspaces=true,                 
+		numbers=left,                    
+		numbersep=5pt,                  
+		showspaces=false,                
+		showstringspaces=false,
+		showtabs=false,                  
+		tabsize=2
+}
+
+\lstdefinestyle{shellstyle}{
+		backgroundcolor=\color{black!5}, 
+		basicstyle=\ttfamily\footnotesize\color{black}, 
+		commentstyle=\color{black}, 
+		keywordstyle=\color{black},
+		numberstyle=\color{black!5},
+		stringstyle=\color{black}, 
+		showspaces=false,
+		showstringspaces=false, 
+		showtabs=false, 
+		tabsize=2, 
+		numbers=none, 
+		breaklines=true
+}
+
+\lstdefinelanguage{x86}{ 
+  keywords={AAA, AAD, AAM, AAS, ADC, ADCB, ADCW, ADCL, ADD, ADDB, ADDW, ADDL, AND, ANDB, ANDW, ANDL,
+        ARPL, BOUND, BSF, BSFL, BSFW, BSR, BSRL, BSRW, BSWAP, BT, BTC, BTCB, BTCW, BTCL, BTR, 
+        BTRB, BTRW, BTRL, BTS, BTSB, BTSW, BTSL, CALL, CBW, CDQ, CLC, CLD, CLI, CLTS, CMC, CMP,
+        CMPB, CMPW, CMPL, CMPS, CMPSB, CMPSD, CMPSW, CMPXCHG, CMPXCHGB, CMPXCHGW, CMPXCHGL,
+        CMPXCHG8B, CPUID, CWDE, DAA, DAS, DEC, DECB, DECW, DECL, DIV, DIVB, DIVW, DIVL, ENTER,
+        HLT, IDIV, IDIVB, IDIVW, IDIVL, IMUL, IMULB, IMULW, IMULL, IN, INB, INW, INL, INC, INCB,
+        INCW, INCL, INS, INSB, INSD, INSW, INT, INT3, INTO, INVD, INVLPG, IRET, IRETD, JA, JAE,
+        JB, JBE, JC, JCXZ, JE, JECXZ, JG, JGE, JL, JLE, JMP, JNA, JNAE, JNB, JNBE, JNC, JNE, JNG,
+        JNGE, JNL, JNLE, JNO, JNP, JNS, JNZ, JO, JP, JPE, JPO, JS, JZ, LAHF, LAR, LCALL, LDS,
+        LEA, LEAVE, LES, LFS, LGDT, LGS, LIDT, LMSW, LOCK, LODSB, LODSD, LODSW, LOOP, LOOPE,
+        LOOPNE, LSL, LSS, LTR, MOV, MOVB, MOVW, MOVL, MOVSB, MOVSD, MOVSW, MOVSX, MOVSXB,
+        MOVSXW, MOVSXL, MOVZX, MOVZXB, MOVZXW, MOVZXL, MUL, MULB, MULW, MULL, NEG, NEGB, NEGW,
+        NEGL, NOP, NOT, NOTB, NOTW, NOTL, OR, ORB, ORW, ORL, OUT, OUTB, OUTW, OUTL, OUTSB, OUTSD,
+        OUTSW, POP, POPL, POPW, POPB, POPA, POPAD, POPF, POPFD, PUSH, PUSHL, PUSHW, PUSHB, PUSHA, 
+        RCLL, RCR, RCRB, RCRW, RCRL, RDMSR, RDPMC, RDTSC, REP, REPE, REPNE, RET, ROL, ROLB, ROLW,
+        ROLL, ROR, RORB, RORW, RORL, SAHF, SAL, SALB, SALW, SALL, SAR, SARB, SARW, SARL, SBB,
+        SBBB, SBBW, SBBL, SCASB, SCASD, SCASW, SETA, SETAE, SETB, SETBE, SETC, SETE, SETG, SETGE,
+        SETL, SETLE, SETNA, SETNAE, SETNB, SETNBE, SETNC, SETNE, SETNG, SETNGE, SETNL, SETNLE,
+        SETNO, SETNP, SETNS, SETNZ, SETO, SETP, SETPE, SETPO, SETS, SETZ, SGDT, SHL, SHLB, SHLW,
+        SHLL, SHLD, SHR, SHRB, SHRW, SHRL, SHRD, SIDT, SLDT, SMSW, STC, STD, STI, STOSB, STOSD,
+        STOSW, STR, SUB, SUBB, SUBW, SUBL, TEST, TESTB, TESTW, TESTL, VERR, VERW, WAIT, WBINVD,
+        XADD, XADDB, XADDW, XADDL, XCHG, XCHGB, XCHGW, XCHGL, XLAT, XLATB, XOR, XORB, XORW, XORL},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{\#},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{riscv}{
+  keywords={
+    LUI, AUIPC,
+    JAL, JALR,
+    BEQ, BNE, BLT, BGE, BLTU, BGEU,
+    LB, LH, LW, LBU, LHU, LD,
+    SB, SH, SW, SD,
+    ADDI, SLTI, SLTIU, XORI, ORI, ANDI,
+    SLLI, SRLI, SRAI,
+    ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND,
+    ADDIW, SLLIW, SRLIW, SRAIW,
+    ADDW, SUBW, SLLW, SRLW, SRAW,
+    MUL, MULH, MULHSU, MULHU, DIV, DIVU, REM, REMU,
+    MULW, DIVW, DIVUW, REMW, REMUW,
+    LR.W, SC.W, AMOSWAP.W, AMOADD.W, AMOXOR.W,
+    AMOAND.W, AMOOR.W, AMOMIN.W, AMOMAX.W,
+    AMOMINU.W, AMOMAXU.W,
+    LR.D, SC.D, AMOSWAP.D, AMOADD.D, AMOXOR.D,
+    AMOAND.D, AMOOR.D, AMOMIN.D, AMOMAX.D,
+    AMOMINU.D, AMOMAXU.D,
+    FLW, FSW,
+    FMADD.S, FMSUB.S, FNMSUB.S, FNMADD.S,
+    FADD.S, FSUB.S, FMUL.S, FDIV.S, FSQRT.S,
+    FSGNJ.S, FSGNJN.S, FSGNJX.S,
+    FMIN.S, FMAX.S,
+    FCVT.W.S, FCVT.WU.S, FCVT.S.W, FCVT.S.WU,
+    FMV.X.W, FMV.W.X,
+    FEQ.S, FLT.S, FLE.S,
+    FLD, FSD,
+    FMADD.D, FMSUB.D, FNMSUB.D, FNMADD.D,
+    FADD.D, FSUB.D, FMUL.D, FDIV.D, FSQRT.D,
+    FSGNJ.D, FSGNJN.D, FSGNJX.D,
+    FMIN.D, FMAX.D,
+    FCVT.W.D, FCVT.WU.D, FCVT.D.W, FCVT.D.WU,
+    FCVT.S.D, FCVT.D.S,
+    FMV.X.D, FMV.D.X,
+    FEQ.D, FLT.D, FLE.D,
+    CSRRW, CSRRS, CSRRC,
+    CSRRWI, CSRRSI, CSRRCI,
+    FENCE.I,
+    FENCE,
+    ECALL, EBREAK,
+    MRET, SRET, URET,
+    WFI,
+    SFENCE.VMA,
+    NOP, LI, LA, MV,
+    NOT, NEG, NEGW,
+    SEQZ, SNEZ, SLTZ, SGTZ,
+    BEQZ, BNEZ, BLEZ, BGEZ, BLTZ, BGTZ,
+    BGT, BLE, BGTU, BLEU,
+    J, JR, RET,
+    CALL, TAIL,
+    RDINSTRET, RDCYCLE, RDTIME,
+    CSRR, CSRW, CSRS, CSRC,
+    CSRWI, CSRSI, CSRCI
+  },
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{\#},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{arm}{
+  keywords={
+    ADC, ADD, AND, BIC, CMN, CMP, EOR, MOV, MVN,
+    RSB, RSC, SBC, SUB, TST, TEQ,
+    MLA, MLS, MUL, SMLAL, SMULL, UMLAL, UMULL,
+    QADD, QSUB, QDADD, QDSUB,
+    QADD16, QADD8, QASX, QSAX,
+    QSUB16, QSUB8, QSAX, QSUBADDX,
+    ASR, LSL, LSR, ROR, RRX,
+    B, BL, BX, BLX,
+    BXJ,
+    BEQ, BNE, BCS, BHS, BCC, BLO,
+    BMI, BPL, BVS, BVC,
+    BHI, BLS, BGE, BLT, BGT, BLE,
+    BAL,
+    LDR, LDRB, LDRH, LDRSB, LDRSH,
+    LDRD, LDM, LDMIA, LDMIB, LDMDA, LDMDB,
+    LDRT, LDRBT, LDRHT, LDRSBT, LDRSHT,
+    STR, STRB, STRH, STRD,
+    STM, STMIA, STMIB, STMDA, STMDB,
+    STRT, STRBT, STRHT,
+    PUSH, POP,
+    SWP, SWPB,
+    REV, REV16, REVSH,
+    BFC, BFI, BFXIL, SBFX, UBFX,
+    CLZ,
+    LDREX, LDREXB, LDREXH, LDREXD,
+    STREX, STREXB, STREXH, STREXD,
+    DMB, DSB, ISB,
+    MCR, MCRR, MRC, MRRC,
+    MRS, MSR,
+    CPS, SETEND, SVC, BKPT,
+    CLREX, WFE, WFI, SEV,
+    YIELD, NOP,
+    VLDR, VSTR,
+    VMOV, VABS, VNEG,
+    VADD, VSUB, VMUL, VDIV,
+    VMLA, VMLS, VNMLA, VNMLS, VNMUL,
+    VMAX, VMIN,
+    VSQRT,
+    VCMP, VCMPE,
+    VCVT,
+    VCLZ, VCLS,
+    VAND, VORR, VEOR, VBIC, VMVN,
+    VLD1, VLD2, VLD3, VLD4,
+    VST1, VST2, VST3, VST4,
+    ADR, ADCS, ADDS, SUBS, MOVS, ANDS, ORRS, EORS
+  },
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{@},
+  morecomment=[l]{;},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{style=codestyle, language=C}
+
+% disponi sezioni
+\usepackage{titlesec}
+
+\titleformat{\section}
+	{\sffamily\Large\bfseries} 
+	{\thesection}{1em}{} 
+\titleformat{\subsection}
+	{\sffamily\large\bfseries}   
+	{\thesubsection}{1em}{} 
+\titleformat{\subsubsection}
+	{\sffamily\normalsize\bfseries} 
+	{\thesubsubsection}{1em}{}
+
+% tikz
+\usepackage{tikz}
+
+% float
+\usepackage{float}
+
+% grafici
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+% disponi alberi
+\usepackage{forest}
+
+\forestset{
+	rectstyle/.style={
+		for tree={rectangle,draw,font=\large\sffamily}
+	},
+	roundstyle/.style={
+		for tree={circle,draw,font=\large}
+	}
+}
+
+% disponi algoritmi
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\makeatletter
+\renewcommand{\ALG@name}{Algorithm}
+\makeatother
+
+% disponi numeri di pagina
+\usepackage{fancyhdr}
+\fancyhf{} 
+\fancyfoot[L]{\sffamily{\thepage}}
+
+\makeatletter
+\fancyhead[L]{\raisebox{1ex}[0pt][0pt]{\sffamily{\@title \ \@date}}} 
+\fancyhead[R]{\raisebox{1ex}[0pt][0pt]{\sffamily{\@author}}}
+\makeatother
+
+\begin{document}
+% sezione (data)
+\section{Lesson 30-09-26}
+
+% stili pagina
+\thispagestyle{empty}
+\pagestyle{fancy}
+
+% testo
+
+\subsection{Memory}
+
+Last week we went over the structure of an embedded system MCU.
+Now we focus on memory, with the target of defining a memory map and defining a linker script for it.
+
+\subsubsection{Types of memory}
+
+Let's quickly go over the \textit{types} of memory available to us.
+
+\par\smallskip
+\textbf{\textsf{SRAM}}
+
+\begin{itemize}
+
+\item
+  \textbf{SRAM} (static RAM) sits on the CPU's memory bus: every byte
+  has an address, and the CPU reads or writes it with a normal
+  load/store;
+\item
+  \textbf{Fast}: on a microcontroller, one access takes about one clock
+  cycle;
+\item
+  \textbf{Byte-writable}: we can change a single byte, any time, as
+  often as we like;
+\item
+  \textbf{Volatile}: power off and everything is lost; at power-on the
+  content is \textbf{undefined} (random bits, not zeros).
+\end{itemize}
+
+SRAM is where anything that \textbf{changes} while the program runs must
+live: variables, the stack.
+
+\par\smallskip
+\textbf{\textsf{NOR flash}}
+
+\begin{itemize}
+
+\item
+  Also sits on the memory bus, like a ROM: every word has an address,
+  random-access reads are fast;
+\item
+	So the CPU can \textbf{fetch} instructions directly from it (common in MCUs):
+  \textbf{execute-in-place} (XIP). No copy needed;
+\item
+  \textbf{Non-volatile}: the program is still there after power-off;
+\item
+  Writing is \textbf{not} a store instruction:
+
+  \begin{itemize}
+  
+  \item
+    First \textbf{erase} a whole sector (e.g.~a few KB) → all bits
+    become 1;
+  \item
+    Then \textbf{program} words (bits can only go 1 → 0)
+  \item
+    Microseconds to milliseconds, through a special command sequence
+  \end{itemize}
+\item
+  Result: at run time, NOR flash is effectively \textbf{read-only}.
+\end{itemize}
+
+\par\smallskip
+\textbf{\textsf{NAND flash and disks}}
+
+\begin{itemize}
+
+\item
+  NAND flash (SD cards, SSDs) and hard disks are \textbf{not} on the
+  memory bus: they are reached through a controller, one \textbf{block}
+  (page) at a time, e.g.~512 B -- 4 KB;
+\item
+  A block has no CPU address → the CPU \textbf{cannot fetch
+  instructions} from it, nor read a single variable;
+\item
+  Contents must first be \textbf{copied into RAM}, then used from there;
+\end{itemize}
+
+This is what a desktop PC does: the program sits on the SSD, and the
+OS \textbf{loader} copies it into RAM before running it. A
+microcontroller has no loader: its program already sits in NOR flash, at
+the address it runs from.
+
+\subsubsection{Effect on program sections}
+
+The different memory types we have available play a role in how we define our \textit{program headers} (or \textit{segment} headers) for embedded programs.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{lccccc}
+        \hline
+        Technology & On the bus & Executable & Writable at runtime & Persistent \\
+        \hline
+        SRAM         & Yes & Yes (XIP) & Yes, bytes & No  \\
+        NOR flash    & Yes & Yes (XIP) & No (erase/program) & Yes \\
+        NAND / disk  & No (blocks) & No & Via a driver & Yes \\
+        \hline
+    \end{tabular}
+\end{table}
+
+The CPU sees one 4 GB address space. On every Cortex-M the \textbf{regions} are fixed by the architecture; each chip decides what it populates.
+
+\begin{table}[ht]
+    \centering
+	\begin{tabular}{llp{5cm}}
+        \hline
+        Address range & Region & On \texttt{mps2-an385} \\
+        \hline
+        \texttt{0x0000\_0000}--\texttt{0x1FFF\_FFFF}
+            & Code
+            & 4 MB at \texttt{0x0}: the program ("FLASH") \\
+
+        \texttt{0x2000\_0000}--\texttt{0x3FFF\_FFFF}
+            & SRAM
+            & 4 MB at \texttt{0x2000\_0000}: "RAM" \\
+
+        \texttt{0x4000\_0000}--\texttt{0x5FFF\_FFFF}
+            & Peripherals
+            & UART, timers\ldots \\
+
+        \texttt{0x6000\_0000}--\texttt{0xDFFF\_FFFF}
+            & External RAM / devices
+            & Not used here \\
+
+        \texttt{0xE000\_0000}--\texttt{0xE00F\_FFFF}
+            & CPU's private registers
+            & Control of the CPU itself (at \texttt{0xE000\_E000}) \\
+        \hline
+    \end{tabular}
+    \caption{Cortex-M memory map and the regions populated by \texttt{mps2-an385}.}
+    \label{tab:cortex-m-memory-map}
+\end{table}
+
+\subsubsection{Linker script}
+
+This leaves us with the following linker script, which we can find very useful to analyze:
+\begin{lstlisting}[language=C, style=codestyle]	
+/* Linker script for mps2-an385 machine (ARM Cortex-M3, MPS2 platform). */
+
+/* Physical memory regions of the board. */
+MEMORY
+{
+    /* code, rodata (XIP) */
+    FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 4M
+
+    /* data, bss, stack */
+    RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 4M
+}
+
+/* Entry point, also entry 1 of vector table (reset handler). */
+ENTRY(Reset_Handler)
+
+/* initial SP = top of RAM; the stack grows downward from here */
+_estack = ORIGIN(RAM) + LENGTH(RAM);  
+
+/* 4 KB reserved for the stack*/
+_Min_Stack_Size = 0x1000;             
+
+/* combine input (ELF) sections into output sections */
+SECTIONS
+{
+    /* Vector table first, at address 0, so the CPU finds the initial SP
+     * and reset vector where the architecture requires them. */
+    .isr_vector :
+    {
+        . = ALIGN(4);            /* vector table must be word-aligned */
+        KEEP(*(.isr_vector))     /* KEEP: never garbage-collect it  */
+        . = ALIGN(4);            /* keep alignment */
+    } > FLASH                    /* place in FLASH */
+
+    /* Executable code and read-only data. */
+    .text :
+    {
+        . = ALIGN(4);           /* word-align the start of this section */
+        *(.text*)               /* all code from every input object */
+        *(.rodata*)             /* string literals, const tables */
+        . = ALIGN(4);           /* word-align the end so (_etext) */
+        _etext = .;             /* end-of-text marker */
+    } > FLASH                   /* place in FLASH */
+    
+    /* FLASH address where .data's initial image is stored: the technique
+    allows for reserving space in RAM while storing in flash. */
+    _sidata = LOADADDR(.data);  
+
+    /* Initialized variables: they live (run) in RAM but their initial
+     * contents are stored in FLASH and copied over by Reset_Handler. */
+    .data :
+    {
+        . = ALIGN(4);           /* word-align the start of .data */
+        _sdata = .;             /* start of .data in RAM */
+        *(.data*)               /* every initialized-variable input section */
+        . = ALIGN(4);           /* word-align the end */
+        _edata = .;             /* end of .data in RAM - copy loop stops here */
+    } > RAM AT > FLASH          /* place in FLASH, access in RAM */
+
+    /* Zero-initialized variables: reserve RAM, no stored image. */
+    .bss :
+    {
+        . = ALIGN(4);           /* word-align the start of .bss */
+        _sbss = .;              /* start of .bss */
+        *(.bss*)                /* every zero-initialized input section */
+        *(COMMON)               /* legacy tentative-definition symbols */
+        . = ALIGN(4);           /* word-align the end */
+        _ebss = .;              /* end of .bss - zero loop stops here */
+    } > RAM
+}
+\end{lstlisting}
+
+For now we intentionally skip the \textit{heap} and other advanced features, but this should be pretty useful to understand how the memory is laid out.
+Let us remember that here we are defining memory \textbf{regions}, declaring memory \textbf{sections}, and expecting the linker to generate for us memory \textbf{segments} (program headers) which place the data in our segments within more "blocks" (that is, segments) to load in different memory regions (the ones seen above).
+
+\subsubsection{LMA vs VMA}
+
+Let us also note the \textit{LMA/VMA} distinction:
+\begin{itemize}
+	\item \textbf{LMA} (\textit{Load Memory Address}) is where the initial bytes of data are located in the executable/image (the program headers which we load);
+	\item \textbf{VMA} (\textit{Virtual/Run-time Memory Address}) is where the data in the section expects to live when the program executes.
+\end{itemize}
+
+The gimmick at lines 45-56 allows us to set a LMA for the data section inside the flash memory, and set its VMA to the address it will be copied to in RAM.
+Of course, the task of copying the data itself is assigned to the reset handler.
+
+We also note that the \texttt{.bss} initialize sector has a VMA (where to access uninitialized data) but no LMA (nothing to load, the reset handler just zeroes out).
+
+\subsubsection{Vector table}
+
+One important region of the memory (more specifically, FLASH memory) is the \textbf{vector table}.
+
+\begin{itemize}
+	\item It is a \textbf{table} of function addresses at a fixed place (address
+    \texttt{0x0} at reset).
+    
+    \item Each \textbf{exception} (an event that makes the CPU stop and
+    run a specific handler: reset, a fault, \ldots) has a numbered
+    \textbf{slot}; the CPU reads slot $N$ to find where to jump,
+    
+    \item Slot 0 is special: it contains not an address of code, but the
+    initial stack pointer (SP), which gets loaded automatically by the CPU. This means that the reset handler is at index 1 (not 0).
+\end{itemize}
+
+In \texttt{boot/startup.s} (base), section \texttt{.isr\_vector}:
+
+\begin{lstlisting}[language={arm}]
+isr_vector:
+    .word _estack          /* 0: initial SP  (C: &_estack)      */
+    .word Reset_Handler    /* 1: reset       (C: Reset_Handler) */
+\end{lstlisting}
+
+The stored value of word 1 is \texttt{Reset\_Handler | 1}: the low bit
+marks Thumb code. Nothing ever \emph{calls} \texttt{isr\_vector}; only
+the hardware reads it.
+
+\subsection{Registers}
+
+We now go over the ARM architecture programmer registers.
+In all ARM processors, the following registers are available and accessible in any processor mode:
+\begin{itemize}
+	\item 13 general-purpose registers: \texttt{R0-R12}: user variables, with call arguments passed through \texttt{R0-R3};
+	\item One \textit{Stack Pointer} (\texttt{SP}): address of the top of the stack;
+	\item One \textit{Link Register} (\texttt{LR}): where to return after a function call;
+	\item One \textit{Program Counter} (\texttt{PC}): address of the next instruction to execute;
+	\item One \textit{Status Register} (\texttt{xPSR}): flags, Thumb bit, current exception.
+\end{itemize}
+
+Some things to note at this level which may not be clear:
+
+\begin{itemize}
+    \item There are no ``variables'' at this level: only these registers and
+    memory.
+    \item The stack grows \textbf{downwards}: a push first does
+    $\mathrm{SP} \mathrel{-}= 4$, then writes.
+\end{itemize}
+
+\par\smallskip
+
+\textbf{xPSR} packs three things into one register:
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{cl}
+        \hline
+        Bits & Content \\
+        \hline
+        31--28 & flags \textbf{N Z C V} (negative, zero, carry, overflow),
+                  set by \texttt{cmp} \\
+        24 & \textbf{T}: Thumb state --- must always be 1 on Cortex-M \\
+        8--0 & number of the exception being handled (0 = none) \\
+        \hline
+    \end{tabular}
+    \caption{xPSR fields}
+    \label{tab:xpsr-fields}
+\end{table}
+
+The CPU is always in one of two \textbf{modes}:
+
+\begin{itemize}
+    \item \textbf{Thread mode} --- normal code: \texttt{Reset\_Handler},
+    \texttt{main()} (xPSR bits 8--0 = 0).
+    
+    \item \textbf{Handler mode} --- running an exception handler
+    (bits 8--0 = its number).
+\end{itemize}
+
+Code can also be \emph{privileged} or not; everything in this unit runs
+privileged.
+
+\subsection{ISA}
+
+\lstset{language=arm}
+
+ARM Cortex-M uses a \textbf{load/store} architecture: arithmetic and
+logical operations operate on registers, while memory is accessed explicitly
+through load and store instructions.
+
+\begin{itemize}
+    \item \texttt{ldr}: \textbf{load} data from memory into a register;
+    \item \texttt{str}: \textbf{store} data from a register into memory;
+    \item Arithmetic instructions do not directly operate on memory operands.
+\end{itemize}
+
+Let's have a table of example memory operations:
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ll}
+        \hline
+        Assembly & C equivalent \\
+        \hline
+        \texttt{ldr r3, [r0]} &
+            \texttt{r3 = *r0;} \\
+
+        \texttt{str r3, [r1]} &
+            \texttt{*r1 = r3;} \\
+
+        \texttt{ldr r3, [r0], \#4} &
+            \texttt{r3 = *r0; r0 += 4;} \\
+        & \texttt{// i.e. r3 = *src++;} \\
+
+        \texttt{str r3, [r1], \#4} &
+            \texttt{*r1 = r3; r1 += 4;} \\
+        & \texttt{// i.e. *dst++ = r3;} \\
+
+        \texttt{strb r1, [r0, \#7]} &
+            \texttt{((uint8\_t *)r0)[7] = r1;} \\
+        & \texttt{// one byte, at offset 7} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Post- and pre-increment}
+
+In ARM we have \textbf{pre-indexed} and \textbf{post-indexed} memory operations, that is control over the time when the base register is updated.
+
+	      Being more specific, ARM allows load and store instructions to optionally \textit{alter} the address contained within a base register.
+	      3 forms are available:
+	      \begin{itemize}
+		      \item \lstinline|ldr r0, [r1, #4]| is equivalent to immediate offset addressing in RISC-V, with \lstinline|#4| being the immediate operand;
+		      \item \lstinline|ldr r0, [r1, #4]!|, with the additional \lstinline|!|, means performing a \textit{write-back} or \textbf{pre-indexing} operation. The calculated address, obtained by adding the offset, is \textit{written back} into the base register before the load operation. The result we get is that of a load from the base address plus the offset, with the base address reflecting the change after execution. Compared to RISC-V, this saves an instruction;
+		      \item \lstinline|ldr r0, [r1], #4| means performing a \textbf{post-indexing} operation. This means increasing the value of the base register by offset, after performing the load. We can thing of this as being analogous to the \lstinline|++| syntax available in C. This also saves an instruction compared to RISC-V.
+	      \end{itemize}
+
+	      As we can see, the main point of this complication is to save a few instructions when accessing arrays, or generally where striding memory access patterns are needed.
+Since a word is 4 bytes on this machine, this is useful for walking through an array or
+copying a block of memory.
+
+For example:
+
+\begin{lstlisting}[language=arm]
+copy:
+    ldr r3, [r0], #4
+    str r3, [r1], #4
+    b   copy
+\end{lstlisting}
+
+copies one word at a time while automatically advancing both pointers.
+
+\subsection{Loading constants and addresses}
+
+Assembly code also needs mechanisms for loading constants, referring to
+addresses, defining labels, and changing the control flow.
+
+Let's have a table of example (pseudo and normal) instructions for constant loading.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ll}
+        \hline
+        Assembly & C equivalent \\
+        \hline
+        \texttt{ldr r0, =\_estack} &
+            \texttt{r0 = (uint32\_t)\&\_estack;} \\
+
+        \texttt{mov sp, r0} &
+            \texttt{sp = r0;} \\
+
+        \texttt{movs r3, \#0} &
+            \texttt{r3 = 0;} \\
+
+        \texttt{copy\_data:} &
+            label: a name for this address \\
+
+        \texttt{b copy\_data} &
+            \texttt{goto copy\_data;} \\
+
+        \texttt{bl main} &
+            \texttt{main();} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+The pseudo-instruction
+
+\begin{lstlisting}[language=arm]
+ldr r0, =_estack
+\end{lstlisting}
+
+loads the value represented by \texttt{\_estack} into \texttt{r0}. This is
+often an address, but the syntax can be used for arbitrary 32-bit constants.
+
+A large constant generally cannot be encoded directly in a single Thumb
+instruction. The assembler can therefore place the constant in a nearby
+\textbf{literal pool} and generate a PC-relative load.
+
+For example, GDB may show:
+
+\begin{lstlisting}[language=arm]
+ldr r0, [pc, #92]
+\end{lstlisting}
+
+The directive
+
+\begin{lstlisting}[language=arm]
+.ltorg
+\end{lstlisting}
+
+asks the assembler to emit the current literal pool at that point.
+
+Note that a label names an address in the program:
+
+\begin{lstlisting}[language=arm]
+copy_data:
+    ...
+\end{lstlisting}
+
+A branch transfers execution to that address:
+
+\begin{lstlisting}[language=arm]
+b copy_data
+\end{lstlisting}
+
+This is analogous to a C \texttt{goto}, although assembly labels are
+addresses in the instruction stream rather than variables.
+
+The instruction \texttt{bl} means \textbf{branch with link}. It branches to
+the target and simultaneously saves the return address in the
+\textbf{link register (LR)}. This is the normal mechanism used for a
+subroutine call:
+
+\begin{lstlisting}[language=arm]
+bl main
+\end{lstlisting}
+
+A corresponding return normally uses the address stored in \texttt{lr}.
+
+\subsubsection{Branches}
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{ll}
+        \hline
+        Assembly & C equivalent \\
+        \hline
+        \texttt{cmp r1, r2} &
+            compute \texttt{r1 - r2} and update the flags \\
+
+        \texttt{bhs done} &
+            \texttt{if (r1 >= r2) goto done;} \\
+        & \texttt{// unsigned comparison} \\
+
+        \texttt{orr r1, r1, \#0x10} &
+            \texttt{r1 |= 0x10;} \\
+
+        \texttt{cpsid i} &
+            disable interrupt acceptance \\
+
+        \texttt{cpsie i} &
+            enable interrupt acceptance \\
+        \hline
+    \end{tabular}
+    \caption{Conditional branches, bit operations and interrupt control.}
+    \label{tab:arm-decisions-bits-interrupts}
+\end{table}
+
+\texttt{cmp} performs a subtraction internally (\texttt{r1} - \texttt{r2}) but does not store the result. Instead, it updates the condition flags
+(\texttt{N}, \texttt{Z}, \texttt{C}, and \texttt{V}) in the xPSR.
+
+A subsequent conditional branch examines these flags.
+
+For example, \texttt{bhs} means ``higher or same'' for an \textbf{unsigned}
+comparison:
+
+\begin{lstlisting}[language=arm]
+cmp r1, r2
+bhs done
+\end{lstlisting}
+
+This corresponds to:
+
+\begin{lstlisting}[language=C]
+if (r1 >= r2)
+    goto done;
+\end{lstlisting}
+
+A C \texttt{while} loop therefore naturally becomes a test at the top,
+followed by a backwards branch at the bottom:
+
+\begin{lstlisting}[language=arm]
+loop:
+    cmp r1, r2        @ while (r1 < r2) {
+    bhs done
+    ...               @     body
+    b   loop          @ }
+done:
+\end{lstlisting}
+
+\subsubsection{Interrupt masking}
+
+On Cortex-M, \texttt{cpsid i} disables the acceptance of maskable
+interrupts, while \texttt{cpsie i} enables them again:
+
+\begin{lstlisting}[language=arm]
+cpsid i
+...
+cpsie i
+\end{lstlisting}
+
+These correspond conceptually to the CMSIS functions
+\texttt{\_\_disable\_irq()} and \texttt{\_\_enable\_irq()}.
+
+\subsubsection{Assembler directives}
+
+Assembly source contains two fundamentally different kinds of lines:
+
+\begin{enumerate}
+    \item \textbf{Instructions}, which become CPU instructions.
+    \item \textbf{Assembler directives}, which control how the assembler
+    constructs the object file.
+\end{enumerate}
+
+Directives generally begin with a period (\texttt{.}) and do not themselves
+execute on the CPU.
+
+For example:
+
+\begin{lstlisting}[language=arm]
+.section .isr_vector,"a",%progbits
+.global isr_vector
+
+isr_vector:
+    .word _estack
+    .word Reset_Handler
+
+.section .text,"ax",%progbits
+.global Reset_Handler
+.thumb_func
+
+Reset_Handler:
+\end{lstlisting}
+
+Here:
+
+\begin{itemize}
+    \item \texttt{.section} selects or creates an ELF section.
+    \item \texttt{.global} makes a symbol visible to the linker and other
+    object files.
+    \item \texttt{.word} emits a 32-bit value into the current section.
+    \item \texttt{.thumb\_func} tells the assembler that the following
+    function is Thumb code.
+\end{itemize}
+
+Thus, \texttt{isr\_vector} is not a function being executed by the CPU:
+the assembler is simply placing two 32-bit values into the
+\texttt{.isr\_vector} section.
+
+The corresponding idea in C is:
+
+\begin{lstlisting}[language=C]
+__attribute__((section(".isr_vector")))
+const uint32_t isr_vector[] = {
+    (uint32_t)&_estack,
+    (uint32_t)Reset_Handler
+};
+\end{lstlisting}
+
+Without \texttt{.global}, an assembly symbol is local to the object file,
+similar in effect to a \texttt{static} C symbol.
+
+\subsubsection{Thumb function addresses}
+
+Cortex-M executes Thumb instructions exclusively. Function pointers and
+exception-vector entries therefore have bit 0 set to indicate Thumb state.
+
+For a symbol such as \texttt{Reset\_Handler}, the assembler/linker can
+produce an address with bit 0 set when it is declared as a Thumb function:
+
+\begin{lstlisting}[language=arm]
+.thumb_func
+Reset_Handler:
+\end{lstlisting}
+
+For example, if the actual instruction address is \texttt{0x00000040}, the Thumb function pointer is represented as \texttt{0x00000041}.
+
+The CPU uses this bit to identify the target as Thumb code; the actual
+instruction address is still aligned to an even address.
+
+\subsection{Faults}
+
+Let's look in more detail at \textbf{faults}, so that we can understand the whole of the \textit{handlers} defined in the ISR vector table.
+
+An \textbf{exception} is any event that interrupts the current code and
+causes the CPU to execute a handler whose address is stored in the vector
+table, switching to Handler mode.
+
+\begin{table}[H]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \vspace{0pt}
+        \centering
+        \begin{tabular}{c p{0.32\linewidth} p{0.38\linewidth}}
+            \hline
+            \# & Exception & Raised by \\
+            \hline
+            0 & \textit{None} & Slot holds the initial SP \\
+            1 & Reset & Power-on, reset button \\
+            2 & NMI & Non-maskable interrupt \\
+            3 & \textbf{HardFault} & Faults that cannot be handled elsewhere \\
+            4 & \textbf{MemManage} & Memory protection violations \\
+            5 & \textbf{BusFault} & Bus access errors \\
+            6 & \textbf{UsageFault} & Invalid instruction use, division by zero, \ldots \\
+            \hline
+        \end{tabular}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \vspace{0pt}
+        \centering
+        \begin{tabular}{c p{0.32\linewidth} p{0.38\linewidth}}
+            \hline
+            \# & Exception & Raised by \\
+            \hline
+            7--10 & \textit{Reserved} & Slot must hold \texttt{0} \\
+            11 & SVCall & The \texttt{svc} instruction \\
+            12 & DebugMonitor & Debug events (unused here) \\
+            13 & \textit{Reserved} & Slot must hold \texttt{0} \\
+            14 & PendSV & A software request \\
+            15 & SysTick & Built-in timer \\
+            16+ & IRQs & Device interrupts \\
+            \hline
+        \end{tabular}
+    \end{minipage}
+\end{table}
+
+At reset, only HardFault is active among the configurable fault handlers:
+faults that cannot be handled by their corresponding handlers escalate to
+HardFault. This corresponds to ``escalate 3'' behavior observed during debugging.
+
+\subsubsection{Handlers}
+
+The initial vector table contains only two words, but the Cortex-M processor
+expects one word per exception vector, for a total of 16 entries in the
+initial table. Slots 7--10 and 13 are reserved and must contain zero.
+Every other slot must contain a valid handler address, even if no specific
+handler has been implemented yet.
+
+A default handler can be defined as follows:
+
+\begin{lstlisting}[language={[x86masm]Assembler}]
+    .word HardFault_Handler        @ slot 3, and so on up to 15
+
+    .weak      HardFault_Handler
+    .thumb_set HardFault_Handler, Default_Handler
+
+Default_Handler:
+    b Default_Handler              @ for (;;) {}
+\end{lstlisting}
+
+The equivalent declaration in C is:
+
+\begin{lstlisting}[language=C]
+void HardFault_Handler(void)
+    __attribute__((weak, alias("Default_Handler")));
+\end{lstlisting}
+
+A \textbf{weak symbol} provides a default implementation that can be
+overridden by a normal definition in another object file. If
+\texttt{main.c} defines its own \texttt{HardFault\_Handler}, the linker
+uses that implementation instead of the default.
+
+The completed vector table occupies 16 words:
+
+\[
+    16 \times 4 = 64 \text{ bytes} = \texttt{0x40}.
+\]
+
+Consequently, if the table starts at address \texttt{0x0}, the
+\texttt{Reset\_Handler} entry point moves from \texttt{0x8} to
+\texttt{0x40}. Since Cortex-M executes Thumb instructions, its vector
+entry contains \texttt{0x41}, with bit 0 set to indicate Thumb state.
+
+\subsection{CPU registers}
+
+One interesting thing about ARM is that some CPU settings live in \textit{registers} which are stored at certain \textbf{memory addresses}.
+
+For instance, the \textbf{SCB} (\textit{System Control Block}) is a set of 32-bit registers inside the CPU, reached like memory in the system area at \texttt{0xE000E000} – \texttt{0xE000EFFF}.
+
+Let's recall the default processor registers:
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ll}
+        \hline
+        Register & Purpose \\
+        \hline
+        \texttt{r0}--\texttt{r12} & General-purpose registers \\
+        \texttt{r13} (\texttt{SP}) & Stack pointer \\
+        \texttt{r14} (\texttt{LR}) & Link register; return address \\
+        \texttt{r15} (\texttt{PC}) & Program counter \\
+        \texttt{xPSR} & Flags, execution state and exception number \\
+        \texttt{MSP} & Main stack pointer \\
+        \texttt{PSP} & Process stack pointer \\
+        \texttt{PRIMASK} & Masks configurable interrupts \\
+        \texttt{BASEPRI} & Masks interrupts below a priority threshold \\
+        \texttt{FAULTMASK} & Masks exceptions except NMI \\
+        \texttt{CONTROL} & Selects stack and privilege state in Thread mode \\
+        \hline
+    \end{tabular}
+\end{table}
+
+The exact register set depends on the Cortex-M implementation. In
+particular, \texttt{BASEPRI} is not implemented on every Cortex-M core.
+
+The \texttt{SP} register refers to the currently selected stack pointer,
+either \texttt{MSP} or \texttt{PSP}. The processor uses the main stack
+pointer in Handler mode.
+
+These peripherals expose registers through fixed memory addresses. They
+are accessed using ordinary load and store instructions.
+
+Let's look at the main peripherals we have:
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lll}
+        \hline
+        Block & Base address & Purpose \\
+        \hline
+        SCnSCB & \texttt{0xE000E000} & System control and feature registers \\
+        SysTick & \texttt{0xE000E010} & 24-bit system timer \\
+        NVIC & \texttt{0xE000E100} & Interrupt enable, pending state and priorities \\
+        SCB & \texttt{0xE000ED00} & Exceptions, faults and processor configuration \\
+        MPU & \texttt{0xE000ED90} & Memory protection (optional) \\
+        DWT & \texttt{0xE0001000} & Watchpoints, cycle counter and profiling \\
+        FPB & \texttt{0xE0002000} & Flash patch and breakpoint unit \\
+        ITM & \texttt{0xE0000000} & Instrumentation and debug output \\
+        CoreDebug & \texttt{0xE000EDF0} & Debug control and status \\
+        TPIU & \texttt{0xE0040000} & Trace output interface \\
+        \hline
+    \end{tabular}
+\end{table}
+
+These addresses correspond to the Cortex-M3 memory map. Optional blocks
+may be absent or incompletely implemented in a particular processor or
+emulator.
+
+The \textit{System Control Block} (\textbf{SCB}) provides registers for processor
+configuration, exception handling and fault diagnosis.
+
+Let's look at some important elements of the SCB:
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lll}
+        \hline
+        Register & Offset & Purpose \\
+        \hline
+        \texttt{CPUID} & \texttt{0x00} & Processor identification \\
+        \texttt{ICSR} & \texttt{0x04} & Exception and interrupt state \\
+        \texttt{VTOR} & \texttt{0x08} & Vector table base address \\
+        \texttt{AIRCR} & \texttt{0x0C} & System reset and priority configuration \\
+        \texttt{SCR} & \texttt{0x10} & Sleep behavior \\
+        \texttt{CCR} & \texttt{0x14} & Processor configuration \\
+        \texttt{SHPR1--3} & \texttt{0x18--0x23} & System exception priorities \\
+        \texttt{SHCSR} & \texttt{0x24} & System handler enable and status \\
+        \texttt{CFSR} & \texttt{0x28} & Configurable fault status \\
+        \texttt{HFSR} & \texttt{0x2C} & HardFault status \\
+        \texttt{DFSR} & \texttt{0x30} & Debug fault status \\
+        \texttt{MMFAR} & \texttt{0x34} & Memory-management fault address \\
+        \texttt{BFAR} & \texttt{0x38} & Bus fault address \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Real chips}
+
+QEMU's CPU is ready as soon as it leaves reset. A real MCU's startup
+code usually does more, often in a vendor function \texttt{SystemInit()}:
+
+\begin{itemize}
+    \item \textbf{Clock / PLL}: the chip starts on a slow internal
+    oscillator; the PLL multiplies the clock frequency up to the desired
+    operating frequency.
+
+    \item \textbf{Flash wait states}: Flash memory is slower than a fast
+    CPU. The Flash controller must be configured to insert additional
+    wait cycles \emph{before} increasing the CPU clock frequency.
+
+    \item \textbf{Watchdog}: a timer that resets the chip unless software
+    periodically ``feeds'' it. On some chips the watchdog starts running
+    immediately after reset, so the startup code must feed or disable it.
+
+    \item \textbf{FPU (Cortex-M4F)}: the floating-point unit is disabled
+    at reset. It can be enabled through the \texttt{CPACR} register at
+    \texttt{0xE000ED88}; otherwise executing an FPU instruction can cause
+    a UsageFault.
+
+    \item \textbf{C++}: before entering \texttt{main()}, the startup code
+    must call the static constructors stored in \texttt{.init\_array}.
+\end{itemize}
+
+\end{document}
