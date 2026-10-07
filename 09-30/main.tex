@@ -372,19 +372,19 @@ Let's quickly go over the \textit{types} of memory available to us.
 
 \begin{itemize}
 
-\item
-  \textbf{SRAM} (static RAM) sits on the CPU's memory bus: every byte
-  has an address, and the CPU reads or writes it with a normal
-  load/store;
-\item
-  \textbf{Fast}: on a microcontroller, one access takes about one clock
-  cycle;
-\item
-  \textbf{Byte-writable}: we can change a single byte, any time, as
-  often as we like;
-\item
-  \textbf{Volatile}: power off and everything is lost; at power-on the
-  content is \textbf{undefined} (random bits, not zeros).
+	\item
+	      \textbf{SRAM} (static RAM) sits on the CPU's memory bus: every byte
+	      has an address, and the CPU reads or writes it with a normal
+	      load/store;
+	\item
+	      \textbf{Fast}: on a microcontroller, one access takes about one clock
+	      cycle;
+	\item
+	      \textbf{Byte-writable}: we can change a single byte, any time, as
+	      often as we like;
+	\item
+	      \textbf{Volatile}: power off and everything is lost; at power-on the
+	      content is \textbf{undefined} (random bits, not zeros).
 \end{itemize}
 
 SRAM is where anything that \textbf{changes} while the program runs must
@@ -395,29 +395,29 @@ live: variables, the stack.
 
 \begin{itemize}
 
-\item
-  Also sits on the memory bus, like a ROM: every word has an address,
-  random-access reads are fast;
-\item
-	So the CPU can \textbf{fetch} instructions directly from it (common in MCUs):
-  \textbf{execute-in-place} (XIP). No copy needed;
-\item
-  \textbf{Non-volatile}: the program is still there after power-off;
-\item
-  Writing is \textbf{not} a store instruction:
+	\item
+	      Also sits on the memory bus, like a ROM: every word has an address,
+	      random-access reads are fast;
+	\item
+	      So the CPU can \textbf{fetch} instructions directly from it (common in MCUs):
+	      \textbf{execute-in-place} (XIP). No copy needed;
+	\item
+	      \textbf{Non-volatile}: the program is still there after power-off;
+	\item
+	      Writing is \textbf{not} a store instruction:
 
-  \begin{itemize}
-  
-  \item
-    First \textbf{erase} a whole sector (e.g.~a few KB) → all bits
-    become 1;
-  \item
-    Then \textbf{program} words (bits can only go 1 → 0)
-  \item
-    Microseconds to milliseconds, through a special command sequence
-  \end{itemize}
-\item
-  Result: at run time, NOR flash is effectively \textbf{read-only}.
+	      \begin{itemize}
+
+		      \item
+		            First \textbf{erase} a whole sector (e.g.~a few KB) → all bits
+		            become 1;
+		      \item
+		            Then \textbf{program} words (bits can only go 1 → 0)
+		      \item
+		            Microseconds to milliseconds, through a special command sequence
+	      \end{itemize}
+	\item
+	      Result: at run time, NOR flash is effectively \textbf{read-only}.
 \end{itemize}
 
 \par\smallskip
@@ -425,15 +425,15 @@ live: variables, the stack.
 
 \begin{itemize}
 
-\item
-  NAND flash (SD cards, SSDs) and hard disks are \textbf{not} on the
-  memory bus: they are reached through a controller, one \textbf{block}
-  (page) at a time, e.g.~512 B -- 4 KB;
-\item
-  A block has no CPU address → the CPU \textbf{cannot fetch
-  instructions} from it, nor read a single variable;
-\item
-  Contents must first be \textbf{copied into RAM}, then used from there;
+	\item
+	      NAND flash (SD cards, SSDs) and hard disks are \textbf{not} on the
+	      memory bus: they are reached through a controller, one \textbf{block}
+	      (page) at a time, e.g.~512 B -- 4 KB;
+	\item
+	      A block has no CPU address → the CPU \textbf{cannot fetch
+		      instructions} from it, nor read a single variable;
+	\item
+	      Contents must first be \textbf{copied into RAM}, then used from there;
 \end{itemize}
 
 This is what a desktop PC does: the program sits on the SSD, and the
@@ -446,49 +446,49 @@ the address it runs from.
 The different memory types we have available play a role in how we define our \textit{program headers} (or \textit{segment} headers) for embedded programs.
 
 \begin{table}[ht]
-    \centering
-    \begin{tabular}{lccccc}
-        \hline
-        Technology & On the bus & Executable & Writable at runtime & Persistent \\
-        \hline
-        SRAM         & Yes & Yes (XIP) & Yes, bytes & No  \\
-        NOR flash    & Yes & Yes (XIP) & No (erase/program) & Yes \\
-        NAND / disk  & No (blocks) & No & Via a driver & Yes \\
-        \hline
-    \end{tabular}
+	\centering
+	\begin{tabular}{lccccc}
+		\hline
+		Technology  & On the bus  & Executable & Writable at runtime & Persistent \\
+		\hline
+		SRAM        & Yes         & Yes (XIP)  & Yes, bytes          & No         \\
+		NOR flash   & Yes         & Yes (XIP)  & No (erase/program)  & Yes        \\
+		NAND / disk & No (blocks) & No         & Via a driver        & Yes        \\
+		\hline
+	\end{tabular}
 \end{table}
 
 The CPU sees one 4 GB address space. On every Cortex-M the \textbf{regions} are fixed by the architecture; each chip decides what it populates.
 
 \begin{table}[ht]
-    \centering
+	\centering
 	\begin{tabular}{llp{5cm}}
-        \hline
-        Address range & Region & On \texttt{mps2-an385} \\
-        \hline
-        \texttt{0x0000\_0000}--\texttt{0x1FFF\_FFFF}
-            & Code
-            & 4 MB at \texttt{0x0}: the program ("FLASH") \\
+		\hline
+		Address range & Region                                               & On \texttt{mps2-an385} \\
+		\hline
+		\texttt{0x0000\_0000}--\texttt{0x1FFF\_FFFF}
+		              & Code
+		              & 4 MB at \texttt{0x0}: the program ("FLASH")                                   \\
 
-        \texttt{0x2000\_0000}--\texttt{0x3FFF\_FFFF}
-            & SRAM
-            & 4 MB at \texttt{0x2000\_0000}: "RAM" \\
+		\texttt{0x2000\_0000}--\texttt{0x3FFF\_FFFF}
+		              & SRAM
+		              & 4 MB at \texttt{0x2000\_0000}: "RAM"                                          \\
 
-        \texttt{0x4000\_0000}--\texttt{0x5FFF\_FFFF}
-            & Peripherals
-            & UART, timers\ldots \\
+		\texttt{0x4000\_0000}--\texttt{0x5FFF\_FFFF}
+		              & Peripherals
+		              & UART, timers\ldots                                                            \\
 
-        \texttt{0x6000\_0000}--\texttt{0xDFFF\_FFFF}
-            & External RAM / devices
-            & Not used here \\
+		\texttt{0x6000\_0000}--\texttt{0xDFFF\_FFFF}
+		              & External RAM / devices
+		              & Not used here                                                                 \\
 
-        \texttt{0xE000\_0000}--\texttt{0xE00F\_FFFF}
-            & CPU's private registers
-            & Control of the CPU itself (at \texttt{0xE000\_E000}) \\
-        \hline
-    \end{tabular}
-    \caption{Cortex-M memory map and the regions populated by \texttt{mps2-an385}.}
-    \label{tab:cortex-m-memory-map}
+		\texttt{0xE000\_0000}--\texttt{0xE00F\_FFFF}
+		              & CPU's private registers
+		              & Control of the CPU itself (at \texttt{0xE000\_E000})                          \\
+		\hline
+	\end{tabular}
+	\caption{Cortex-M memory map and the regions populated by \texttt{mps2-an385}.}
+	\label{tab:cortex-m-memory-map}
 \end{table}
 
 \subsubsection{Linker script}
@@ -588,14 +588,14 @@ One important region of the memory (more specifically, FLASH memory) is the \tex
 
 \begin{itemize}
 	\item It is a \textbf{table} of function addresses at a fixed place (address
-    \texttt{0x0} at reset).
-    
-    \item Each \textbf{exception} (an event that makes the CPU stop and
-    run a specific handler: reset, a fault, \ldots) has a numbered
-    \textbf{slot}; the CPU reads slot $N$ to find where to jump,
-    
-    \item Slot 0 is special: it contains not an address of code, but the
-    initial stack pointer (SP), which gets loaded automatically by the CPU. This means that the reset handler is at index 1 (not 0).
+	      \texttt{0x0} at reset).
+
+	\item Each \textbf{exception} (an event that makes the CPU stop and
+	      run a specific handler: reset, a fault, \ldots) has a numbered
+	      \textbf{slot}; the CPU reads slot $N$ to find where to jump,
+
+	\item Slot 0 is special: it contains not an address of code, but the
+	      initial stack pointer (SP), which gets loaded automatically by the CPU. This means that the reset handler is at index 1 (not 0).
 \end{itemize}
 
 In \texttt{boot/startup.s} (base), section \texttt{.isr\_vector}:
@@ -625,10 +625,10 @@ In all ARM processors, the following registers are available and accessible in a
 Some things to note at this level which may not be clear:
 
 \begin{itemize}
-    \item There are no ``variables'' at this level: only these registers and
-    memory.
-    \item The stack grows \textbf{downwards}: a push first does
-    $\mathrm{SP} \mathrel{-}= 4$, then writes.
+	\item There are no ``variables'' at this level: only these registers and
+	      memory.
+	\item The stack grows \textbf{downwards}: a push first does
+	      $\mathrm{SP} \mathrel{-}= 4$, then writes.
 \end{itemize}
 
 \par\smallskip
@@ -636,29 +636,29 @@ Some things to note at this level which may not be clear:
 \textbf{xPSR} packs three things into one register:
 
 \begin{table}[ht]
-    \centering
-    \begin{tabular}{cl}
-        \hline
-        Bits & Content \\
-        \hline
-        31--28 & flags \textbf{N Z C V} (negative, zero, carry, overflow),
-                  set by \texttt{cmp} \\
-        24 & \textbf{T}: Thumb state --- must always be 1 on Cortex-M \\
-        8--0 & number of the exception being handled (0 = none) \\
-        \hline
-    \end{tabular}
-    \caption{xPSR fields}
-    \label{tab:xpsr-fields}
+	\centering
+	\begin{tabular}{cl}
+		\hline
+		Bits   & Content                                                   \\
+		\hline
+		31--28 & flags \textbf{N Z C V} (negative, zero, carry, overflow),
+		set by \texttt{cmp}                                                \\
+		24     & \textbf{T}: Thumb state --- must always be 1 on Cortex-M  \\
+		8--0   & number of the exception being handled (0 = none)          \\
+		\hline
+	\end{tabular}
+	\caption{xPSR fields}
+	\label{tab:xpsr-fields}
 \end{table}
 
 The CPU is always in one of two \textbf{modes}:
 
 \begin{itemize}
-    \item \textbf{Thread mode} --- normal code: \texttt{Reset\_Handler},
-    \texttt{main()} (xPSR bits 8--0 = 0).
-    
-    \item \textbf{Handler mode} --- running an exception handler
-    (bits 8--0 = its number).
+	\item \textbf{Thread mode} --- normal code: \texttt{Reset\_Handler},
+	      \texttt{main()} (xPSR bits 8--0 = 0).
+
+	\item \textbf{Handler mode} --- running an exception handler
+	      (bits 8--0 = its number).
 \end{itemize}
 
 Code can also be \emph{privileged} or not; everything in this unit runs
@@ -673,52 +673,52 @@ logical operations operate on registers, while memory is accessed explicitly
 through load and store instructions.
 
 \begin{itemize}
-    \item \texttt{ldr}: \textbf{load} data from memory into a register;
-    \item \texttt{str}: \textbf{store} data from a register into memory;
-    \item Arithmetic instructions do not directly operate on memory operands.
+	\item \texttt{ldr}: \textbf{load} data from memory into a register;
+	\item \texttt{str}: \textbf{store} data from a register into memory;
+	\item Arithmetic instructions do not directly operate on memory operands.
 \end{itemize}
 
 Let's have a table of example memory operations:
 \begin{table}[H]
-    \centering
-    \begin{tabular}{ll}
-        \hline
-        Assembly & C equivalent \\
-        \hline
-        \texttt{ldr r3, [r0]} &
-            \texttt{r3 = *r0;} \\
+	\centering
+	\begin{tabular}{ll}
+		\hline
+		Assembly                    & C equivalent                      \\
+		\hline
+		\texttt{ldr r3, [r0]}       &
+		\texttt{r3 = *r0;}                                              \\
 
-        \texttt{str r3, [r1]} &
-            \texttt{*r1 = r3;} \\
+		\texttt{str r3, [r1]}       &
+		\texttt{*r1 = r3;}                                              \\
 
-        \texttt{ldr r3, [r0], \#4} &
-            \texttt{r3 = *r0; r0 += 4;} \\
-        & \texttt{// i.e. r3 = *src++;} \\
+		\texttt{ldr r3, [r0], \#4}  &
+		\texttt{r3 = *r0; r0 += 4;}                                     \\
+		                            & \texttt{// i.e. r3 = *src++;}     \\
 
-        \texttt{str r3, [r1], \#4} &
-            \texttt{*r1 = r3; r1 += 4;} \\
-        & \texttt{// i.e. *dst++ = r3;} \\
+		\texttt{str r3, [r1], \#4}  &
+		\texttt{*r1 = r3; r1 += 4;}                                     \\
+		                            & \texttt{// i.e. *dst++ = r3;}     \\
 
-        \texttt{strb r1, [r0, \#7]} &
-            \texttt{((uint8\_t *)r0)[7] = r1;} \\
-        & \texttt{// one byte, at offset 7} \\
-        \hline
-    \end{tabular}
+		\texttt{strb r1, [r0, \#7]} &
+		\texttt{((uint8\_t *)r0)[7] = r1;}                              \\
+		                            & \texttt{// one byte, at offset 7} \\
+		\hline
+	\end{tabular}
 \end{table}
 
 \subsection{Post- and pre-increment}
 
 In ARM we have \textbf{pre-indexed} and \textbf{post-indexed} memory operations, that is control over the time when the base register is updated.
 
-	      Being more specific, ARM allows load and store instructions to optionally \textit{alter} the address contained within a base register.
-	      3 forms are available:
-	      \begin{itemize}
-		      \item \lstinline|ldr r0, [r1, #4]| is equivalent to immediate offset addressing in RISC-V, with \lstinline|#4| being the immediate operand;
-		      \item \lstinline|ldr r0, [r1, #4]!|, with the additional \lstinline|!|, means performing a \textit{write-back} or \textbf{pre-indexing} operation. The calculated address, obtained by adding the offset, is \textit{written back} into the base register before the load operation. The result we get is that of a load from the base address plus the offset, with the base address reflecting the change after execution. Compared to RISC-V, this saves an instruction;
-		      \item \lstinline|ldr r0, [r1], #4| means performing a \textbf{post-indexing} operation. This means increasing the value of the base register by offset, after performing the load. We can thing of this as being analogous to the \lstinline|++| syntax available in C. This also saves an instruction compared to RISC-V.
-	      \end{itemize}
+Being more specific, ARM allows load and store instructions to optionally \textit{alter} the address contained within a base register.
+3 forms are available:
+\begin{itemize}
+	\item \lstinline|ldr r0, [r1, #4]| is equivalent to immediate offset addressing in RISC-V, with \lstinline|#4| being the immediate operand;
+	\item \lstinline|ldr r0, [r1, #4]!|, with the additional \lstinline|!|, means performing a \textit{write-back} or \textbf{pre-indexing} operation. The calculated address, obtained by adding the offset, is \textit{written back} into the base register before the load operation. The result we get is that of a load from the base address plus the offset, with the base address reflecting the change after execution. Compared to RISC-V, this saves an instruction;
+	\item \lstinline|ldr r0, [r1], #4| means performing a \textbf{post-indexing} operation. This means increasing the value of the base register by offset, after performing the load. We can thing of this as being analogous to the \lstinline|++| syntax available in C. This also saves an instruction compared to RISC-V.
+\end{itemize}
 
-	      As we can see, the main point of this complication is to save a few instructions when accessing arrays, or generally where striding memory access patterns are needed.
+As we can see, the main point of this complication is to save a few instructions when accessing arrays, or generally where striding memory access patterns are needed.
 Since a word is 4 bytes on this machine, this is useful for walking through an array or
 copying a block of memory.
 
@@ -740,30 +740,30 @@ addresses, defining labels, and changing the control flow.
 
 Let's have a table of example (pseudo and normal) instructions for constant loading.
 \begin{table}[H]
-    \centering
-    \begin{tabular}{ll}
-        \hline
-        Assembly & C equivalent \\
-        \hline
-        \texttt{ldr r0, =\_estack} &
-            \texttt{r0 = (uint32\_t)\&\_estack;} \\
+	\centering
+	\begin{tabular}{ll}
+		\hline
+		Assembly                   & C equivalent \\
+		\hline
+		\texttt{ldr r0, =\_estack} &
+		\texttt{r0 = (uint32\_t)\&\_estack;}      \\
 
-        \texttt{mov sp, r0} &
-            \texttt{sp = r0;} \\
+		\texttt{mov sp, r0}        &
+		\texttt{sp = r0;}                         \\
 
-        \texttt{movs r3, \#0} &
-            \texttt{r3 = 0;} \\
+		\texttt{movs r3, \#0}      &
+		\texttt{r3 = 0;}                          \\
 
-        \texttt{copy\_data:} &
-            label: a name for this address \\
+		\texttt{copy\_data:}       &
+		label: a name for this address            \\
 
-        \texttt{b copy\_data} &
-            \texttt{goto copy\_data;} \\
+		\texttt{b copy\_data}      &
+		\texttt{goto copy\_data;}                 \\
 
-        \texttt{bl main} &
-            \texttt{main();} \\
-        \hline
-    \end{tabular}
+		\texttt{bl main}           &
+		\texttt{main();}                          \\
+		\hline
+	\end{tabular}
 \end{table}
 
 The pseudo-instruction
@@ -823,30 +823,30 @@ A corresponding return normally uses the address stored in \texttt{lr}.
 \subsubsection{Branches}
 
 \begin{table}[ht]
-    \centering
-    \begin{tabular}{ll}
-        \hline
-        Assembly & C equivalent \\
-        \hline
-        \texttt{cmp r1, r2} &
-            compute \texttt{r1 - r2} and update the flags \\
+	\centering
+	\begin{tabular}{ll}
+		\hline
+		Assembly                    & C equivalent                    \\
+		\hline
+		\texttt{cmp r1, r2}         &
+		compute \texttt{r1 - r2} and update the flags                 \\
 
-        \texttt{bhs done} &
-            \texttt{if (r1 >= r2) goto done;} \\
-        & \texttt{// unsigned comparison} \\
+		\texttt{bhs done}           &
+		\texttt{if (r1 >= r2) goto done;}                             \\
+		                            & \texttt{// unsigned comparison} \\
 
-        \texttt{orr r1, r1, \#0x10} &
-            \texttt{r1 |= 0x10;} \\
+		\texttt{orr r1, r1, \#0x10} &
+		\texttt{r1 |= 0x10;}                                          \\
 
-        \texttt{cpsid i} &
-            disable interrupt acceptance \\
+		\texttt{cpsid i}            &
+		disable interrupt acceptance                                  \\
 
-        \texttt{cpsie i} &
-            enable interrupt acceptance \\
-        \hline
-    \end{tabular}
-    \caption{Conditional branches, bit operations and interrupt control.}
-    \label{tab:arm-decisions-bits-interrupts}
+		\texttt{cpsie i}            &
+		enable interrupt acceptance                                   \\
+		\hline
+	\end{tabular}
+	\caption{Conditional branches, bit operations and interrupt control.}
+	\label{tab:arm-decisions-bits-interrupts}
 \end{table}
 
 \texttt{cmp} performs a subtraction internally (\texttt{r1} - \texttt{r2}) but does not store the result. Instead, it updates the condition flags
@@ -900,9 +900,9 @@ These correspond conceptually to the CMSIS functions
 Assembly source contains two fundamentally different kinds of lines:
 
 \begin{enumerate}
-    \item \textbf{Instructions}, which become CPU instructions.
-    \item \textbf{Assembler directives}, which control how the assembler
-    constructs the object file.
+	\item \textbf{Instructions}, which become CPU instructions.
+	\item \textbf{Assembler directives}, which control how the assembler
+	      constructs the object file.
 \end{enumerate}
 
 Directives generally begin with a period (\texttt{.}) and do not themselves
@@ -928,12 +928,12 @@ Reset_Handler:
 Here:
 
 \begin{itemize}
-    \item \texttt{.section} selects or creates an ELF section.
-    \item \texttt{.global} makes a symbol visible to the linker and other
-    object files.
-    \item \texttt{.word} emits a 32-bit value into the current section.
-    \item \texttt{.thumb\_func} tells the assembler that the following
-    function is Thumb code.
+	\item \texttt{.section} selects or creates an ELF section.
+	\item \texttt{.global} makes a symbol visible to the linker and other
+	      object files.
+	\item \texttt{.word} emits a 32-bit value into the current section.
+	\item \texttt{.thumb\_func} tells the assembler that the following
+	      function is Thumb code.
 \end{itemize}
 
 Thus, \texttt{isr\_vector} is not a function being executed by the CPU:
@@ -980,42 +980,42 @@ causes the CPU to execute a handler whose address is stored in the vector
 table, switching to Handler mode.
 
 \begin{table}[H]
-    \centering
-    \begin{minipage}[t]{0.48\textwidth}
-        \vspace{0pt}
-        \centering
-        \begin{tabular}{c p{0.32\linewidth} p{0.38\linewidth}}
-            \hline
-            \# & Exception & Raised by \\
-            \hline
-            0 & \textit{None} & Slot holds the initial SP \\
-            1 & Reset & Power-on, reset button \\
-            2 & NMI & Non-maskable interrupt \\
-            3 & \textbf{HardFault} & Faults that cannot be handled elsewhere \\
-            4 & \textbf{MemManage} & Memory protection violations \\
-            5 & \textbf{BusFault} & Bus access errors \\
-            6 & \textbf{UsageFault} & Invalid instruction use, division by zero, \ldots \\
-            \hline
-        \end{tabular}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[t]{0.48\textwidth}
-        \vspace{0pt}
-        \centering
-        \begin{tabular}{c p{0.32\linewidth} p{0.38\linewidth}}
-            \hline
-            \# & Exception & Raised by \\
-            \hline
-            7--10 & \textit{Reserved} & Slot must hold \texttt{0} \\
-            11 & SVCall & The \texttt{svc} instruction \\
-            12 & DebugMonitor & Debug events (unused here) \\
-            13 & \textit{Reserved} & Slot must hold \texttt{0} \\
-            14 & PendSV & A software request \\
-            15 & SysTick & Built-in timer \\
-            16+ & IRQs & Device interrupts \\
-            \hline
-        \end{tabular}
-    \end{minipage}
+	\centering
+	\begin{minipage}[t]{0.48\textwidth}
+		\vspace{0pt}
+		\centering
+		\begin{tabular}{c p{0.32\linewidth} p{0.38\linewidth}}
+			\hline
+			\# & Exception           & Raised by                                         \\
+			\hline
+			0  & \textit{None}       & Slot holds the initial SP                         \\
+			1  & Reset               & Power-on, reset button                            \\
+			2  & NMI                 & Non-maskable interrupt                            \\
+			3  & \textbf{HardFault}  & Faults that cannot be handled elsewhere           \\
+			4  & \textbf{MemManage}  & Memory protection violations                      \\
+			5  & \textbf{BusFault}   & Bus access errors                                 \\
+			6  & \textbf{UsageFault} & Invalid instruction use, division by zero, \ldots \\
+			\hline
+		\end{tabular}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.48\textwidth}
+		\vspace{0pt}
+		\centering
+		\begin{tabular}{c p{0.32\linewidth} p{0.38\linewidth}}
+			\hline
+			\#    & Exception         & Raised by                    \\
+			\hline
+			7--10 & \textit{Reserved} & Slot must hold \texttt{0}    \\
+			11    & SVCall            & The \texttt{svc} instruction \\
+			12    & DebugMonitor      & Debug events (unused here)   \\
+			13    & \textit{Reserved} & Slot must hold \texttt{0}    \\
+			14    & PendSV            & A software request           \\
+			15    & SysTick           & Built-in timer               \\
+			16+   & IRQs              & Device interrupts            \\
+			\hline
+		\end{tabular}
+	\end{minipage}
 \end{table}
 
 At reset, only HardFault is active among the configurable fault handlers:
@@ -1057,7 +1057,7 @@ uses that implementation instead of the default.
 The completed vector table occupies 16 words:
 
 \[
-    16 \times 4 = 64 \text{ bytes} = \texttt{0x40}.
+	16 \times 4 = 64 \text{ bytes} = \texttt{0x40}.
 \]
 
 Consequently, if the table starts at address \texttt{0x0}, the
@@ -1073,24 +1073,24 @@ For instance, the \textbf{SCB} (\textit{System Control Block}) is a set of 32-bi
 
 Let's recall the default processor registers:
 \begin{table}[H]
-    \centering
-    \begin{tabular}{ll}
-        \hline
-        Register & Purpose \\
-        \hline
-        \texttt{r0}--\texttt{r12} & General-purpose registers \\
-        \texttt{r13} (\texttt{SP}) & Stack pointer \\
-        \texttt{r14} (\texttt{LR}) & Link register; return address \\
-        \texttt{r15} (\texttt{PC}) & Program counter \\
-        \texttt{xPSR} & Flags, execution state and exception number \\
-        \texttt{MSP} & Main stack pointer \\
-        \texttt{PSP} & Process stack pointer \\
-        \texttt{PRIMASK} & Masks configurable interrupts \\
-        \texttt{BASEPRI} & Masks interrupts below a priority threshold \\
-        \texttt{FAULTMASK} & Masks exceptions except NMI \\
-        \texttt{CONTROL} & Selects stack and privilege state in Thread mode \\
-        \hline
-    \end{tabular}
+	\centering
+	\begin{tabular}{ll}
+		\hline
+		Register                   & Purpose                                          \\
+		\hline
+		\texttt{r0}--\texttt{r12}  & General-purpose registers                        \\
+		\texttt{r13} (\texttt{SP}) & Stack pointer                                    \\
+		\texttt{r14} (\texttt{LR}) & Link register; return address                    \\
+		\texttt{r15} (\texttt{PC}) & Program counter                                  \\
+		\texttt{xPSR}              & Flags, execution state and exception number      \\
+		\texttt{MSP}               & Main stack pointer                               \\
+		\texttt{PSP}               & Process stack pointer                            \\
+		\texttt{PRIMASK}           & Masks configurable interrupts                    \\
+		\texttt{BASEPRI}           & Masks interrupts below a priority threshold      \\
+		\texttt{FAULTMASK}         & Masks exceptions except NMI                      \\
+		\texttt{CONTROL}           & Selects stack and privilege state in Thread mode \\
+		\hline
+	\end{tabular}
 \end{table}
 
 The exact register set depends on the Cortex-M implementation. In
@@ -1105,23 +1105,23 @@ are accessed using ordinary load and store instructions.
 
 Let's look at the main peripherals we have:
 \begin{table}[H]
-    \centering
-    \begin{tabular}{lll}
-        \hline
-        Block & Base address & Purpose \\
-        \hline
-        SCnSCB & \texttt{0xE000E000} & System control and feature registers \\
-        SysTick & \texttt{0xE000E010} & 24-bit system timer \\
-        NVIC & \texttt{0xE000E100} & Interrupt enable, pending state and priorities \\
-        SCB & \texttt{0xE000ED00} & Exceptions, faults and processor configuration \\
-        MPU & \texttt{0xE000ED90} & Memory protection (optional) \\
-        DWT & \texttt{0xE0001000} & Watchpoints, cycle counter and profiling \\
-        FPB & \texttt{0xE0002000} & Flash patch and breakpoint unit \\
-        ITM & \texttt{0xE0000000} & Instrumentation and debug output \\
-        CoreDebug & \texttt{0xE000EDF0} & Debug control and status \\
-        TPIU & \texttt{0xE0040000} & Trace output interface \\
-        \hline
-    \end{tabular}
+	\centering
+	\begin{tabular}{lll}
+		\hline
+		Block     & Base address        & Purpose                                        \\
+		\hline
+		SCnSCB    & \texttt{0xE000E000} & System control and feature registers           \\
+		SysTick   & \texttt{0xE000E010} & 24-bit system timer                            \\
+		NVIC      & \texttt{0xE000E100} & Interrupt enable, pending state and priorities \\
+		SCB       & \texttt{0xE000ED00} & Exceptions, faults and processor configuration \\
+		MPU       & \texttt{0xE000ED90} & Memory protection (optional)                   \\
+		DWT       & \texttt{0xE0001000} & Watchpoints, cycle counter and profiling       \\
+		FPB       & \texttt{0xE0002000} & Flash patch and breakpoint unit                \\
+		ITM       & \texttt{0xE0000000} & Instrumentation and debug output               \\
+		CoreDebug & \texttt{0xE000EDF0} & Debug control and status                       \\
+		TPIU      & \texttt{0xE0040000} & Trace output interface                         \\
+		\hline
+	\end{tabular}
 \end{table}
 
 These addresses correspond to the Cortex-M3 memory map. Optional blocks
@@ -1133,26 +1133,26 @@ configuration, exception handling and fault diagnosis.
 
 Let's look at some important elements of the SCB:
 \begin{table}[H]
-    \centering
-    \begin{tabular}{lll}
-        \hline
-        Register & Offset & Purpose \\
-        \hline
-        \texttt{CPUID} & \texttt{0x00} & Processor identification \\
-        \texttt{ICSR} & \texttt{0x04} & Exception and interrupt state \\
-        \texttt{VTOR} & \texttt{0x08} & Vector table base address \\
-        \texttt{AIRCR} & \texttt{0x0C} & System reset and priority configuration \\
-        \texttt{SCR} & \texttt{0x10} & Sleep behavior \\
-        \texttt{CCR} & \texttt{0x14} & Processor configuration \\
-        \texttt{SHPR1--3} & \texttt{0x18--0x23} & System exception priorities \\
-        \texttt{SHCSR} & \texttt{0x24} & System handler enable and status \\
-        \texttt{CFSR} & \texttt{0x28} & Configurable fault status \\
-        \texttt{HFSR} & \texttt{0x2C} & HardFault status \\
-        \texttt{DFSR} & \texttt{0x30} & Debug fault status \\
-        \texttt{MMFAR} & \texttt{0x34} & Memory-management fault address \\
-        \texttt{BFAR} & \texttt{0x38} & Bus fault address \\
-        \hline
-    \end{tabular}
+	\centering
+	\begin{tabular}{lll}
+		\hline
+		Register          & Offset              & Purpose                                 \\
+		\hline
+		\texttt{CPUID}    & \texttt{0x00}       & Processor identification                \\
+		\texttt{ICSR}     & \texttt{0x04}       & Exception and interrupt state           \\
+		\texttt{VTOR}     & \texttt{0x08}       & Vector table base address               \\
+		\texttt{AIRCR}    & \texttt{0x0C}       & System reset and priority configuration \\
+		\texttt{SCR}      & \texttt{0x10}       & Sleep behavior                          \\
+		\texttt{CCR}      & \texttt{0x14}       & Processor configuration                 \\
+		\texttt{SHPR1--3} & \texttt{0x18--0x23} & System exception priorities             \\
+		\texttt{SHCSR}    & \texttt{0x24}       & System handler enable and status        \\
+		\texttt{CFSR}     & \texttt{0x28}       & Configurable fault status               \\
+		\texttt{HFSR}     & \texttt{0x2C}       & HardFault status                        \\
+		\texttt{DFSR}     & \texttt{0x30}       & Debug fault status                      \\
+		\texttt{MMFAR}    & \texttt{0x34}       & Memory-management fault address         \\
+		\texttt{BFAR}     & \texttt{0x38}       & Bus fault address                       \\
+		\hline
+	\end{tabular}
 \end{table}
 
 \subsection{Real chips}
@@ -1161,25 +1161,25 @@ QEMU's CPU is ready as soon as it leaves reset. A real MCU's startup
 code usually does more, often in a vendor function \texttt{SystemInit()}:
 
 \begin{itemize}
-    \item \textbf{Clock / PLL}: the chip starts on a slow internal
-    oscillator; the PLL multiplies the clock frequency up to the desired
-    operating frequency.
+	\item \textbf{Clock / PLL}: the chip starts on a slow internal
+	      oscillator; the PLL multiplies the clock frequency up to the desired
+	      operating frequency.
 
-    \item \textbf{Flash wait states}: Flash memory is slower than a fast
-    CPU. The Flash controller must be configured to insert additional
-    wait cycles \emph{before} increasing the CPU clock frequency.
+	\item \textbf{Flash wait states}: Flash memory is slower than a fast
+	      CPU. The Flash controller must be configured to insert additional
+	      wait cycles \emph{before} increasing the CPU clock frequency.
 
-    \item \textbf{Watchdog}: a timer that resets the chip unless software
-    periodically ``feeds'' it. On some chips the watchdog starts running
-    immediately after reset, so the startup code must feed or disable it.
+	\item \textbf{Watchdog}: a timer that resets the chip unless software
+	      periodically ``feeds'' it. On some chips the watchdog starts running
+	      immediately after reset, so the startup code must feed or disable it.
 
-    \item \textbf{FPU (Cortex-M4F)}: the floating-point unit is disabled
-    at reset. It can be enabled through the \texttt{CPACR} register at
-    \texttt{0xE000ED88}; otherwise executing an FPU instruction can cause
-    a UsageFault.
+	\item \textbf{FPU (Cortex-M4F)}: the floating-point unit is disabled
+	      at reset. It can be enabled through the \texttt{CPACR} register at
+	      \texttt{0xE000ED88}; otherwise executing an FPU instruction can cause
+	      a UsageFault.
 
-    \item \textbf{C++}: before entering \texttt{main()}, the startup code
-    must call the static constructors stored in \texttt{.init\_array}.
+	\item \textbf{C++}: before entering \texttt{main()}, the startup code
+	      must call the static constructors stored in \texttt{.init\_array}.
 \end{itemize}
 
 \end{document}

@@ -26,11 +26,6 @@
 \author{Luca Seggiani}
 \date{2026}
 
-% spaziatura liste
-\usepackage{enumitem}
-\setlist[itemize]{noitemsep, topsep=4pt, partopsep=0pt, parsep=2pt, leftmargin=*}
-\setlist[enumerate]{noitemsep, topsep=4pt, partopsep=0pt, parsep=2pt, leftmargin=*}
-
 % imposta lo stile
 % usa helvetica
 \usepackage[scaled]{helvet}
@@ -134,7 +129,6 @@
 		numbers=none, 
 		breaklines=true
 }
-
 
 \lstdefinelanguage{x86}{ 
   keywords={AAA, AAD, AAM, AAS, ADC, ADCB, ADCW, ADCL, ADD, ADDB, ADDW, ADDL, AND, ANDB, ANDW, ANDL,
@@ -355,14 +349,117 @@
 \makeatother
 
 \begin{document}
+% sezione (data)
+\section{Lesson 07-10-26}
 
-\pagestyle{fancy}
+% stili pagina
 \thispagestyle{empty}
-\renewcommand{\thispagestyle}[1]{}
+\pagestyle{fancy}
 
-\maketitle
-\input{../09-23/main.tex}
-\input{../09-30/main.tex}
-\input{../10-01/main.tex}
-\input{../10-07/main.tex}
+% testo
+\subsection{ARM hardware interface}
+
+The ARM hardware interface is split in 2 components:
+\begin{itemize}
+	\item The \textbf{CMDSDK} (\textit{Cortex-M System Design Kit}): it is an hardware specification of ready-made peripheral designs that chip designers place next to the CPU;
+	\item The \textbf{CMSIS} (\textit{Cortex-M Software Interface Standard}): it is a standard for the C headers and functions that describe a chip.
+\end{itemize}
+
+Our board's peripherals are CMSDK blocks: Arm documents their registers once, the same on every chip that
+uses them.
+More specifically, it is an \textit{MPS2}: an Arm development board built around an FPGA (a chip whose logic is loaded at power-on). \textit{AN385}
+(Application Note 385) is one FPGA image for it: a Cortex-M3 plus CMSDK peripherals.
+
+\begin{table}[h!]
+	\center \rowcolors{2}{white}{black!10}
+	\begin{tabular} { c | c }
+		\bfseries Address & \bfseries Device \\
+		\hline 
+		\texttt{0x4000\_0000} / \texttt{0x4000\_1000} / \texttt{0x4000\_1000} & Timer 0, Timer 1, dual timer \\
+
+		\texttt{0x4000\_4000} / \texttt{0x4000\_5000} / \texttt{0x4000\_6000} & UART0, UART1, UART2 \\
+		\texttt{0x4000\_8000} / \texttt{0x4001\_0000} & Watchdog, GPIO pins \\
+		\texttt{0x4002\_8000} & FPGA I/O (MPS2 block)
+	\end{tabular}
+\end{table}
+
+We use no vendor CMSIS files (no libraries at all): our register header is hand-written in CMSIS style, so its
+names look like those in vendor code.
+
+Basically, we have a CMDSDK peripheral set, for which we program a CMSIS interface by hand.
+
+\subsubsection{Buses}
+
+A \textbf{bus} is the set of wires (address, data, control) that carries every load and store from the CPU to a memory or a
+device. Arm defines two kinds:
+
+\begin{itemize}
+\item \textbf{AHB} (\textit{Advanced High-performance Bus}): the main bus; pipelined, one transfer per cycle. Memories and devices
+that need speed sit here;
+\item \textbf{APB} (\textit{Advanced Peripheral Bus}): simple, slow, low power. For registers that are touched rarely: configure a
+timer, send one byte
+\end{itemize}
+
+The bridge turns an AHB access into an APB access: a few extra cycles are needed for conversion.
+For our code, nothing changes: a register is a load or store at an address on either bus; only the timing differs.
+
+\subsubsection{External interrupts}
+
+A device can raise an interrupt request (\textbf{IRQ}) line to tell the CPU "something happened". Device line $N$ is served by vector-table slot $16 + N$, right after the 16 core slots we saw were related to internal interrupts (exceptions, such as the Reset Handler). 
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c|l@{\hspace{2cm}}c|l}
+\hline
+\textbf{IRQ} & \textbf{Interrupt source} & \textbf{IRQ} & \textbf{Interrupt source} \\
+\hline
+0  & UART 0 receive & 16 & GPIO 2 combined \\
+1  & UART 0 transmit & 17 & GPIO 3 combined \\
+2  & UART 1 receive & 18 & UART 3 receive \\
+3  & UART 1 transmit & 19 & UART 3 transmit \\
+4  & UART 2 receive & 20 & UART 4 receive \\
+5  & UART 2 transmit & 21 & UART 4 transmit \\
+6  & GPIO 0 combined & 22 & SPI 2 \\
+7  & GPIO 1 combined & 23 & SPI 3, SPI 4 \\
+8  & Timer 0 & 24 & GPIO 0, pin 0 \\
+9  & Timer 1 & 25 & GPIO 0, pin 1 \\
+10 & Dual Timer & 26 & GPIO 0, pin 2 \\
+11 & SPI 0, SPI 1 & 27 & GPIO 0, pin 3 \\
+12 & UART overflow (UART 0, 1, 2) & 28 & GPIO 0, pin 4 \\
+13 & Ethernet & 29 & GPIO 0, pin 5 \\
+14 & Audio I2S & 30 & GPIO 0, pin 6 \\
+15 & Touch Screen Controller & 31 & GPIO 0, pin 7 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{ARM ABI}
+
+Let's look at the ARM \textbf{ABI} (\textit{Application Binary Interface}), as it will be useful to know how to implement interrupt handlers (we have to know how arguments are passed around).
+
+C and assembly can call each other only if both follow the same rules: the \textbf{AAPCS} (\textit{Procedure Call Standard for the Arm Architecture}).
+
+\begin{center}
+	\begin{tabular}{c|p{5cm}|p{5cm}}
+\hline
+\textbf{Register} & \textbf{Role in a call} & \textbf{Kept across the call?} \\
+\hline
+r0--r3 & The first four arguments; r0 also carries the result & No: \textbf{caller-saved} (scratch) \\
+\hline
+r4--r11 & The function's own long-lived values & Yes: \textbf{callee-saved} \\
+\hline
+r12 & Scratch & No: \textbf{caller-saved} \\
+\hline
+lr & Return address, written by \texttt{bl} & No: a function that calls another saves it first \\
+\hline
+sp & Must be a multiple of 8 at every call & Yes \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+\item \textbf{Caller-saved}: if the caller still needs r0--r3 or r12 after the call, it saves them itself;
+\item \textbf{Callee-saved}: a function that wants to modify r4 must restore it before returning.
+\end{itemize}
+
 \end{document}

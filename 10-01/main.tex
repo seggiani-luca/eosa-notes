@@ -395,13 +395,13 @@ We still need to be able to print stuff to console.
 The solution we will use is \textbf{semihosting}: the target asks the \textit{host} (our machine) to perform the I/O.
 
 \begin{enumerate}
-\item The program puts an operation code in \texttt{r0} (\texttt{0x04} = \texttt{SYS\_WRITE0}) and the string address in \texttt{r1}. \texttt{SYS\_WRITE0} is the opcode for "print this NULL-terminated string";
+	\item The program puts an operation code in \texttt{r0} (\texttt{0x04} = \texttt{SYS\_WRITE0}) and the string address in \texttt{r1}. \texttt{SYS\_WRITE0} is the opcode for "print this NULL-terminated string";
 
-\item It executes \texttt{bkpt 0xab}: a breakpoint instruction with a special number;
+	\item It executes \texttt{bkpt 0xab}: a breakpoint instruction with a special number;
 
-\item QEMU (or a debugger) sees the breakpoint, reads \texttt{r0} and \texttt{r1}, reads the string from target memory, and prints it \textbf{on your laptop};
+	\item QEMU (or a debugger) sees the breakpoint, reads \texttt{r0} and \texttt{r1}, reads the string from target memory, and prints it \textbf{on your laptop};
 
-\item The program resumes after the \texttt{bkpt}.
+	\item The program resumes after the \texttt{bkpt}.
 
 \end{enumerate}
 
@@ -423,9 +423,9 @@ static void semihost_write0( const char *message )
 Let's look at what \texttt{bkpt 0xab} really does:
 
 \begin{itemize}
-\item The program \textbf{stops} doing its own work;
-\item Control passes to \textbf{someone more powerful} (QEMU, outside the CPU);
-\item That someone performs the job and \textbf{hands control back}.
+	\item The program \textbf{stops} doing its own work;
+	\item Control passes to \textbf{someone more powerful} (QEMU, outside the CPU);
+	\item That someone performs the job and \textbf{hands control back}.
 \end{itemize}
 
 This is the same shape as a system call on Linux: your program cannot drive the terminal itself, so it \textbf{asks the kernel} to do it.
@@ -448,29 +448,29 @@ We have to manually set the CPU to unprivileged thread mode if we want protectio
 A special CPU register (not in memory) selects Thread-mode privilege:
 
 \begin{table}[h]
-\centering
-\begin{tabular}{c l l}
-\hline
-\textbf{Bit} & \textbf{Name} & \textbf{Meaning} \\
-\hline
-0 & \textbf{nPRIV} & 0 = privileged, 1 = unprivileged (Thread mode only) \\
-1 & SPSEL & selects which stack pointer Thread mode uses (not used here) \\
-\hline
-\end{tabular}
+	\centering
+	\begin{tabular}{c l l}
+		\hline
+		\textbf{Bit} & \textbf{Name}  & \textbf{Meaning}                                             \\
+		\hline
+		0            & \textbf{nPRIV} & 0 = privileged, 1 = unprivileged (Thread mode only)          \\
+		1            & SPSEL          & selects which stack pointer Thread mode uses (not used here) \\
+		\hline
+	\end{tabular}
 \end{table}
 
 Special registers are reached with two dedicated instructions:
 
 \begin{table}[h]
-\centering
-\begin{tabular}{c l}
-\hline
-\textbf{Instruction} & \textbf{C equivalent} \\
-\hline
-\texttt{mrs r0, control} & \texttt{r0 = CONTROL;} \quad (read special register) \\
-\texttt{msr control, r0} & \texttt{CONTROL = r0;} \quad (write special register) \\
-\hline
-\end{tabular}
+	\centering
+	\begin{tabular}{c l}
+		\hline
+		\textbf{Instruction}     & \textbf{C equivalent}                                 \\
+		\hline
+		\texttt{mrs r0, control} & \texttt{r0 = CONTROL;} \quad (read special register)  \\
+		\texttt{msr control, r0} & \texttt{CONTROL = r0;} \quad (write special register) \\
+		\hline
+	\end{tabular}
 \end{table}
 
 \subsubsection{Dropping privilege}
@@ -487,40 +487,40 @@ Writing CONTROL is itself a privileged operation: an unprivileged \texttt{msr co
 The only ways back to privileged: reset, or an exception (its handler runs in Handler mode, always privileged).
 
 \begin{table}[H]
-\centering
-\begin{tabular}{p{10cm} p{5cm}}
-\hline
-\textbf{Attempt} & \textbf{Result} \\
-\hline
-Read/write the \textbf{System Control Space} (\texttt{0xE000E000} \ldots):
-SysTick, NVIC, SCB (VTOR, SHCSR, CCR, priorities)
-& \textbf{BusFault} \\
+	\centering
+	\begin{tabular}{p{10cm} p{5cm}}
+		\hline
+		\textbf{Attempt} & \textbf{Result}                                \\
+		\hline
+		Read/write the \textbf{System Control Space} (\texttt{0xE000E000} \ldots):
+		SysTick, NVIC, SCB (VTOR, SHCSR, CCR, priorities)
+		                 & \textbf{BusFault}                              \\
 
-\texttt{msr control, r0} (raise privilege back)
-& ignored \\
+		\texttt{msr control, r0} (raise privilege back)
+		                 & ignored                                        \\
 
-\texttt{cpsid i} / \texttt{cpsie i} (mask interrupts)
-& ignored \\
+		\texttt{cpsid i} / \texttt{cpsie i} (mask interrupts)
+		                 & ignored                                        \\
 
-Semihosting \texttt{bkpt 0xab}
-& QEMU refuses it by default $\rightarrow$ fault \\
-\hline
-\end{tabular}
+		Semihosting \texttt{bkpt 0xab}
+		                 & QEMU refuses it by default $\rightarrow$ fault \\
+		\hline
+	\end{tabular}
 \end{table}
 
 Ordinary RAM, Flash, and user code still work normally. The restricted code simply cannot \textbf{reconfigure} the machine or silence it.
 
 \subsubsection{Raising privilege}
 
-Unprivileged code cannot touch the hardware, but it can still \textit{call} privileged mode handlers: 
+Unprivileged code cannot touch the hardware, but it can still \textit{call} privileged mode handlers:
 \texttt{svc \#n} (\textit{SuperVisor Call}) is allowed in unprivileged code.
 
 \begin{enumerate}
-	\item 
-It raises the \textbf{SVCall exception} (vector-table entry 11, \texttt{SVC\_Handler}).
-The CPU enters \textbf{Handler mode}, and the corresponding handler runs privileged;
 	\item
-When the handler returns, the CPU goes back to the instruction after \texttt{svc}, still \textbf{unprivileged}.
+	      It raises the \textbf{SVCall exception} (vector-table entry 11, \texttt{SVC\_Handler}).
+	      The CPU enters \textbf{Handler mode}, and the corresponding handler runs privileged;
+	\item
+	      When the handler returns, the CPU goes back to the instruction after \texttt{svc}, still \textbf{unprivileged}.
 
 \end{enumerate}
 
