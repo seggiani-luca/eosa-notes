@@ -130,7 +130,6 @@
 		breaklines=true
 }
 
-
 \lstdefinelanguage{x86}{ 
   keywords={AAA, AAD, AAM, AAS, ADC, ADCB, ADCW, ADCL, ADD, ADDB, ADDW, ADDL, AND, ANDB, ANDW, ANDL,
         ARPL, BOUND, BSF, BSFL, BSFW, BSR, BSRL, BSRW, BSWAP, BT, BTC, BTCB, BTCW, BTCL, BTR, 
@@ -350,11 +349,106 @@
 \makeatother
 
 \begin{document}
+% sezione (data)
+\section{Lesson 21-10-26}
 
-\pagestyle{fancy}
+% stili pagina
 \thispagestyle{empty}
-\renewcommand{\thispagestyle}[1]{}
+\pagestyle{fancy}
 
-\maketitle
-\input{../09-23/main.tex}
+% testo
+\subsection{Context switching}
+
+This is likely better explained in code.
+
+\subsection{Real-time scheduling}
+
+Let's now focus on how real-time systems define \textbf{schedulers}.
+
+We first focus on what \textit{real-time} means.
+Most programs only have to be correct: given the input, compute the right output, whenever it is ready.
+A real-time system must be correct and \textit{on time}: it reacts to an event from the outside world, and the result must be ready within a fixed time, the deadline.
+
+We saw there were categories of real-time systems:
+\begin{itemize}
+	\item \textbf{Hard}: if the task deadline is missed, catastrophic consequences on the system or its environment;
+	\item \textbf{Firm}: the result is useless and is thrown away, but no serious damage;
+	\item \textbf{Soft}: the result is still useful, only worse; meeting the deadline is desirable.
+\end{itemize}
+
+A fast system minimises the average time a set of tasks takes: (average turnaround, average waiting).
+A real-time system guarantees the timing of each task: every job must finish by its own deadline, even in the
+worst case.
+A low average says nothing about one task: one late job can hide behind many early ones.
+A faster CPU helps, but it is not a guarantee: what matters is which task runs when, that is the scheduling.
+So a real-time system values \textbf{predictability}: we must be able to compute, in advance, when each task finishes.
+
+\subsubsection{Types of tasks}
+
+Real-time system discussion benefits from a quick overview on \textbf{task types}.
+There are three:
+\begin{itemize}
+	\item \textbf{Periodic}: a new job is released at a constant rate, every period $T$. Also called time-driven. Easy to reason about (and do maths on), also quite similar to how most embedded systems are structured: every $T$ seconds the system should for instance check input, execute an algorithm, update a value, repeat ...
+	\item \textbf{Aperiodic}: jobs are released by events, at irregular times, with no known minimum gap: in theory two can arrive at the same instant. This is harder to handle than the one above;
+	\item \textbf{Sporadic}: aperiodic, but two consecutive jobs are always at least a minimum inter-arrival time apart. In the worst case, a sporadic task behaves like a periodic task with $T$. These are easier to reason about if we assume them to not be that frequent and lift the hard real-time assumption slightly. 
+\end{itemize}
+
+We will use a simplified model for tasks.
+\begin{itemize}
+	\item We have a \textit{fixed number} of tasks, all known in advance;
+	\item Every task is periodic, with a known period $T$;
+	\item The tasks are independent: they share no resources and do not wait for each other (no precedence);
+	\item Each task has a hard deadline equal to its period: a job must finish before the next job of the same task is released ($D = T$);
+	\item Each task has a known, fixed worst-case execution time $C$. This can be obtained in practice via either static measuring (before uploading programs to the OS) or dynamic measuring (by the OS itself).
+	\item There is one CPU, and all the kernel's overheads, for example the context switch, are negligible.
+\end{itemize}
+
+\subsubsection{Scheduling metrics}
+
+Let's introduce some \textbf{metrics}.
+
+\begin{itemize}
+	\item \textbf{Release} (arrival, activation) time $a$: the job becomes READY. Job $k$ is released at $a = \phi + (k - 1) \times T$;
+	\item \textbf{Phase} $\phi$ : the release time of the first job. $\phi = 0$ if not given;
+	\item \textbf{Computation} time $C$: the CPU time the job needs; we use its worst case, the \textbf{WCET} (\textit{Worst-Case Execution Time});
+	\item \textbf{Period} $T$: the time between two releases.
+	\item \textbf{Relative deadline} $D$  the time the job has after its release; $D = T$
+here;
+	\item \textbf{Absolute deadline} $d = a + D$: the instant the job must be finished by. With $D = T$ , it is the next release;
+	\item \textbf{Start time} $s$, \textbf{finish time} $f$. In general $f \neq s + C$, because the job can be preempted;
+	\item \textbf{Response} time $R = f - a$: from release to the end. A job meets its deadline when $R \leq D$;
+	\item \textbf{Lateness} $L = f - d$: negative means early, 0 means just in time, positive means deadline missed.
+\end{itemize}
+
+\begin{center}
+	\includegraphics[scale=0.22]{../figures/task_sched.png}
+\end{center}
+
+The response time $R = f - a$ is sometimes called \textit{turnaround}, and $s - a$ the response time. In real-time systems, we stick to the above convention.
+
+It is also extremely useful to define the \textbf{utilization} of the CPU as:
+$$
+U = \sum_i^{N} \frac{C_i}{T_i}
+$$
+That is the sum of all execution time over period ratios for all tasks.
+
+Lastly, we define the hyperperiod $H$ as the least common multiple of all the task periods. With all phases at 0, every task releases a job at 0 and again at $H$, so the pattern of releases repeats at every $H$. 
+
+\subsubsection{Timer scheduling}
+
+Some embedded applications are simple: a few periodic tasks that do not interact, for example reading sensors
+through one shared ADC and updating outputs. They do not need a full operating system.
+\textbf{Timeline} scheduling, also called a cyclic executive: the whole schedule is computed offline, before the
+system runs, and stored as a fixed table.
+The time axis is divided into slots of equal length, the \textit{minor cycles} (or frames), equal to the greatest common divisor of the periods.
+Each frame runs a fixed list of jobs, one after the other, without preemption, and a timer interrupt marks the start of every frame.
+The sequence of frames that then repeats identically is the \textit{major cycle}, equal to the least common divisor.
+At run time there is no scheduler deciding anything: the program follows the table.
+
+\begin{center}
+	\includegraphics[scale=0.22]{../figures/timer_sched.png}
+\end{center}
+
+
+
 \end{document}
