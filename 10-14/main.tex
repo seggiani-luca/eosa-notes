@@ -369,18 +369,18 @@ B's sit side by side, and any of them can write anywhere.
 In this lesson we start covering memory management.
 Memory is one shared resource, and several programs want it at once. The OS has four jobs:
 \begin{itemize}
-\item
-  \textbf{Placement}: decide where each program's code, data and stack
-  go, so they do not overlap;
-\item
-  \textbf{Sharing}: let programs use the same memory when they should
-  (one copy of a library, a buffer passed to a device);
-\item
-  \textbf{Protection}: stop a program from reading or writing memory
-  that is not its own, by mistake or on purpose;
-\item
-  \textbf{More programs than memory}: when the programs together need
-  more memory than there is, keep only the parts in use in RAM.
+	\item
+	      \textbf{Placement}: decide where each program's code, data and stack
+	      go, so they do not overlap;
+	\item
+	      \textbf{Sharing}: let programs use the same memory when they should
+	      (one copy of a library, a buffer passed to a device);
+	\item
+	      \textbf{Protection}: stop a program from reading or writing memory
+	      that is not its own, by mistake or on purpose;
+	\item
+	      \textbf{More programs than memory}: when the programs together need
+	      more memory than there is, keep only the parts in use in RAM.
 \end{itemize}
 
 There are a number of mechanisms used to perform memory management and protection.
@@ -391,9 +391,9 @@ First, we should distinguish between \textbf{translation} and \textbf{protection
 
 \begin{itemize}
 	\item
-	\textbf{Translation} means the address the program uses is changed into another address before it reaches memory;
+	      \textbf{Translation} means the address the program uses is changed into another address before it reaches memory;
 	\item
-	\textbf{Protection} means the hardware stops accesses that are not allowed.
+	      \textbf{Protection} means the hardware stops accesses that are not allowed.
 \end{itemize}
 
 \begin{center}
@@ -402,16 +402,16 @@ First, we should distinguish between \textbf{translation} and \textbf{protection
 
 We now present an evolution timeline of memory management techniques.
 \begin{itemize}
-\item
-\textbf{Flat}: one program, or a kernel and its tasks together, share all of RAM. No translation, no protection;
-\item
-\textbf{Static partitions}: each task gets a fixed slice of RAM, set at link time. Still no protection: nothing stops a task from writing outside its slice;
-\item
-\textbf{MPU protection}: a hardware unit checks every access against a list of allowed regions and stops bad ones. Protection, but no translation: an address means the same thing for everyone;
-\item
-\textbf{Paging (MMU)}: hardware maps each address the program uses to a different physical place. Translation and protection;
-\item
-\textbf{Virtual memory}: paging plus the disk, so programs can use more memory than the RAM has.
+	\item
+	      \textbf{Flat}: one program, or a kernel and its tasks together, share all of RAM. No translation, no protection;
+	\item
+	      \textbf{Static partitions}: each task gets a fixed slice of RAM, set at link time. Still no protection: nothing stops a task from writing outside its slice;
+	\item
+	      \textbf{MPU protection}: a hardware unit checks every access against a list of allowed regions and stops bad ones. Protection, but no translation: an address means the same thing for everyone;
+	\item
+	      \textbf{Paging (MMU)}: hardware maps each address the program uses to a different physical place. Translation and protection;
+	\item
+	      \textbf{Virtual memory}: paging plus the disk, so programs can use more memory than the RAM has.
 \end{itemize}
 
 Note that each step needs more hardware and buys more flexibility.

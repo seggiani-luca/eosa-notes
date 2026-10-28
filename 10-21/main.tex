@@ -390,7 +390,7 @@ There are three:
 \begin{itemize}
 	\item \textbf{Periodic}: a new job is released at a constant rate, every period $T$. Also called time-driven. Easy to reason about (and do maths on), also quite similar to how most embedded systems are structured: every $T$ seconds the system should for instance check input, execute an algorithm, update a value, repeat ...
 	\item \textbf{Aperiodic}: jobs are released by events, at irregular times, with no known minimum gap: in theory two can arrive at the same instant. This is harder to handle than the one above;
-	\item \textbf{Sporadic}: aperiodic, but two consecutive jobs are always at least a minimum inter-arrival time apart. In the worst case, a sporadic task behaves like a periodic task with $T$. These are easier to reason about if we assume them to not be that frequent and lift the hard real-time assumption slightly. 
+	\item \textbf{Sporadic}: aperiodic, but two consecutive jobs are always at least a minimum inter-arrival time apart. In the worst case, a sporadic task behaves like a periodic task with $T$. These are easier to reason about if we assume them to not be that frequent and lift the hard real-time assumption slightly.
 \end{itemize}
 
 We will use a simplified model for tasks.
@@ -413,7 +413,7 @@ Let's introduce some \textbf{metrics}.
 	\item \textbf{Computation} time $C$: the CPU time the job needs; we use its worst case, the \textbf{WCET} (\textit{Worst-Case Execution Time});
 	\item \textbf{Period} $T$: the time between two releases.
 	\item \textbf{Relative deadline} $D$  the time the job has after its release; $D = T$
-here;
+	      here;
 	\item \textbf{Absolute deadline} $d = a + D$: the instant the job must be finished by. With $D = T$ , it is the next release;
 	\item \textbf{Start time} $s$, \textbf{finish time} $f$. In general $f \neq s + C$, because the job can be preempted;
 	\item \textbf{Response} time $R = f - a$: from release to the end. A job meets its deadline when $R \leq D$;
@@ -428,11 +428,11 @@ The response time $R = f - a$ is sometimes called \textit{turnaround}, and $s - 
 
 It is also extremely useful to define the \textbf{utilization} of the CPU as:
 $$
-U = \sum_i^{N} \frac{C_i}{T_i}
+	U = \sum_i^{N} \frac{C_i}{T_i}
 $$
 That is the sum of all execution time over period ratios for all tasks.
 
-Lastly, we define the hyperperiod $H$ as the least common multiple of all the task periods. With all phases at 0, every task releases a job at 0 and again at $H$, so the pattern of releases repeats at every $H$. 
+Lastly, we define the hyperperiod $H$ as the least common multiple of all the task periods. With all phases at 0, every task releases a job at 0 and again at $H$, so the pattern of releases repeats at every $H$.
 
 \subsubsection{Timer scheduling}
 
