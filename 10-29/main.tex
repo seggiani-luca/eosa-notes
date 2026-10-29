@@ -388,7 +388,7 @@ The problem of background scheduling is this last point: we know that in fact ap
 
 A server is a periodic task created to run aperiodic jobs. It has a period (like any periodic task) $T_s$ and a budget (capacity) $C_s$: the time it may use in each period. Its utilisation is $U_s = \frac{C_s}{T_s}$.
 
-The polling server is scheduled with \textbf{RM} like any other periodic task: its priority comes from $T_s$. If $T_s$ equals the period of a task, both have the same RM priority: the task runs first.
+The \textbf{polling server} is scheduled with \textbf{RM} like any other periodic task: its priority comes from $T_s$. If $T_s$ equals the period of a task, both have the same RM priority: the task runs first.
 
 At each period start the budget si set to $C_s$. It never accumulates.
 The server runs only when it has budget and an aperiodic job is pending; each slot it runs costs 1 unit.
@@ -417,7 +417,85 @@ In fact, this is basically Liu-Layland including the server task at maximum capa
 $$
 \prod_i^n (U_i + 1) \cdot (U_s + 1) \leq 2
 $$
-is also valid.
+which is also valid.
+
+\par\medskip
+
+\textit{Proof} \\
+We can prove that the Liu–Layland utilization bound given in 7.12 or in the notes implies the product condition. The two conditions are not equivalent in general; the utilization bound is a sufficient condition for the product inequality:
+$$
+\sum_i^n U_i \leq n \left( 2^\frac{1}{n} - 1 \right)
+\ \implies \ 
+\prod_i^n (U_i + 1) \leq 2
+$$
+
+This proof seems to come easy using the AM-GM inequality (or \textit{Jensen}'s inequality if you fuck around long enough). Since we seemed to have fucked around long enough, in this proof we try to cover both bases.
+
+First we start from the fact that:
+$$
+\frac{1}{n} \sum_i^n \log \left( U_i + 1 \right) \leq \log \left( \frac{1}{n} \sum_i \left( U_i + 1 \right) \right)
+$$
+This comes from observing that $\log(x)$ is a concave function.
+Because of this concavity, the the average of the function's values is no greater than the function evaluated at the average. 
+Really, this statement is just Jensen's inequality (which generalizes to any function $f$ that is concave).
+
+What we can do is take exponents on both sides:
+$$
+\begin{aligned}
+	e^{ \frac{1}{n} \sum_i^n \log \left( U_i + 1 \right) } &\leq \frac{1}{n} \sum_i^n \left( U_i + 1 \right) \\
+	\left( e^{ \sum_i^n \log \left( U_i + 1 \right) } \right)^\frac{1}{n} &\leq \frac{1}{n} \sum_i^n \left( U_i + 1 \right) \\
+	\left( \prod_i^n \left( U_i + 1\right) \right)^\frac{1}{n} &\leq \frac{1}{n} \sum_i^n \left( U_i + 1 \right)
+\end{aligned}
+$$
+
+The last step is simply noticing at the LHS that:
+$$
+\begin{aligned}
+e^{\sum_{i=1}^{n}\log(U_i+1)}
+&= e^{\log(U_1+1)+\log(U_2+1)+\cdots+\log(U_n+1)} \\[6pt]
+&= e^{\log(U_1+1)}e^{\log(U_2+1)}\cdots e^{\log(U_n+1)} \\[6pt]
+&= (U_1+1)(U_2+1)\cdots(U_n+1) \\[6pt]
+&= \prod_{i=1}^{n}(U_i+1)
+\end{aligned}
+$$
+
+At this point, what we proved is basically the AM-GM inequality.
+
+\par\smallskip
+
+We can now take the LHS of the original equivalence:
+$$
+\begin{aligned}
+	\sum_i^n U_i &\leq n \left( 2^\frac{1}{n} - 1 \right) \\
+	\frac{1}{n} \sum_i^n U_i &\leq 2^\frac{1}{n} - 1 \\
+	\sum_i^n \frac{U_i}{n} + 1 &\leq 2^\frac{1}{n} \\
+	\sum_i^n \frac{U_i}{n} + \sum_i^n \frac{1}{n} &\leq 2^\frac{1}{n} \\
+	\frac{1}{n} \sum_i^n (U_i + 1) &\leq 2^\frac{1}{n} \\
+\end{aligned}
+$$
+
+The LHS of this is the RHS of the inequality we proved earlier.
+If this is true, then it's also true that:
+$$
+\begin{aligned}
+	\left( \prod_i^n (U_i + 1) \right)^\frac{1}{n} &\leq 2^\frac{1}{n} \\
+	\prod_i^n (U_i + 1) &\leq 2
+\end{aligned}
+$$
+
+The last step was the same as applying the AM-GM inequality, thus the whole ordeal.
+
+Sometimes this multiplicatory bound is called the \textit{hyperbolic bound} (e.g. Wikipedia), which is a tighter sufficient condition for schedulability than the one originally presented by Liu and Layland. 
+
+"\textit{Tighter}" here means \textit{less conservative}: the Liu-Layland proof (again, read the notes) assumes the worst case scenario (called the \textit{critical instant}) where all tasks are scheduled at the same instant.
+The multiplicative bound doesn't consider just this particular condition, so where the Liu–Layland bound depends only on the total utilization, it retains information about the individual task utilizations. Consequently, the hyperbolic test can distinguish between task sets with the same total utilization but different distributions of utilization across tasks.
+
+The implication means this: all sets schedulable according to the Liu-Layland bound are schedulable according to the hyperbolic bound.
+Some other sets schedulable according to the hyperbolic bound might be missed by the Liu-Layland bound.
+
+\qed
+
+\par\smallskip
 
 This bound is useful for determining the polling server \textit{capacity}, that is \textbf{sizing} the polling server.
 We solve the test for $U_s$: the largest server utilisation is:
@@ -433,7 +511,7 @@ As a rule of thumb:
 
 \subsubsection{Deferrable server}
 
-The polling server wastes its budget when no job is pending at the right moment, so a job that arrives just after waits a whole period. The deferrable server keeps the budget.
+The polling server wastes its budget when no job is pending at the right moment, so a job that arrives just after waits a whole period. The \textbf{deferrable server} keeps the budget.
 
 We assume the same parameters $C_s$, $T_s$, same RM priority from $T_s$ (it loses a tie with a task of the same period).
 The difference is that it keeps its budget until the end of its period, even when no job is pending.
@@ -450,6 +528,26 @@ Because of this last consideration, we know that the deferrable server is not a 
 $$
 P = \prod_i^n (U_i + 1) \leq \frac{U_s + 2}{2 U_s + 1}
 $$
+
+\par\smallskip
+
+The proof of this test requires first understanding the original Liu-Layland proof (again, notes).
+It seems kind of clunky, so it won't be notated fully here.
+
+What we can say is that from the original proof we had recurrent relations to express bounds on execution times $C_i$. Specifically, for $C_n$ we had:
+$$
+C_n = 2 T_1 - T_n
+$$
+at full utilization.
+
+To account for the fact that our deferrable server task can run twice its $C_s$ in a row, straddling a period edge, we change this to:
+$$
+C_n \leq K T_1 - T_n, \quad K = \frac{U_s + 2}{2 U_s + 1}
+$$
+
+The rest of the proof follows from this.
+
+\par\smallskip
 
 This bound is also useful for sizing the polling server:
 $$
