@@ -1,0 +1,481 @@
+
+\documentclass[a4paper,11pt]{article}
+\usepackage[a4paper, margin=8em]{geometry}
+
+% usa i pacchetti per la scrittura in italiano
+\usepackage[french,italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\frenchspacing 
+
+% usa i pacchetti per la formattazione matematica
+\usepackage{amsmath, amssymb, amsthm, amsfonts}
+
+% usa altri pacchetti
+\usepackage{gensymb}
+\usepackage{hyperref}
+\usepackage{standalone}
+
+\usepackage{colortbl}
+
+\usepackage{xstring}
+\usepackage{karnaugh-map}
+
+% imposta il titolo
+\title{Embedded Operating Systems and Architectures notes}
+\author{Luca Seggiani}
+\date{2026}
+
+% imposta lo stile
+% usa helvetica
+\usepackage[scaled]{helvet}
+% usa palatino
+\usepackage{palatino}
+% usa un font monospazio guardabile
+\usepackage{lmodern}
+
+\renewcommand{\rmdefault}{ppl}
+\renewcommand{\sfdefault}{phv}
+\renewcommand{\ttdefault}{lmtt}
+
+% circuiti
+\usepackage{circuitikz}
+\usetikzlibrary{babel}
+
+% testo cerchiato
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
+
+% disponi il titolo
+\makeatletter
+\renewcommand{\maketitle} {
+	\begin{center} 
+		\begin{minipage}[t]{.8\textwidth}
+			\textsf{\huge\bfseries \@title} 
+		\end{minipage}%
+		\begin{minipage}[t]{.2\textwidth}
+			\raggedleft \vspace{-1.65em}
+			\textsf{\small \@author} \vfill
+			\textsf{\small \@date}
+		\end{minipage}
+		\par
+	\end{center}
+
+	\thispagestyle{empty}
+	\pagestyle{fancy}
+}
+\makeatother
+
+% disponi teoremi
+\usepackage{tcolorbox}
+\newtcolorbox[auto counter, number within=section]{theorem}[2][]{%
+	colback=blue!10, 
+	colframe=blue!40!black, 
+	sharp corners=northwest,
+	fonttitle=\sffamily\bfseries, 
+	title=Theorem~\thetcbcounter: #2, 
+	#1
+}
+
+% disponi definizioni
+\newtcolorbox[auto counter, number within=section]{definition}[2][]{%
+	colback=red!10,
+	colframe=red!40!black,
+	sharp corners=northwest,
+	fonttitle=\sffamily\bfseries,
+	title=Definition~\thetcbcounter: #2,
+	#1
+}
+
+% disponi codice
+\usepackage{listings}
+\usepackage[table]{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{codestyle}{
+		backgroundcolor=\color{black!5}, 
+		commentstyle=\color{codegreen},
+		keywordstyle=\bfseries\color{magenta},
+		numberstyle=\sffamily\tiny\color{black!60},
+		stringstyle=\color{green!50!black},
+		basicstyle=\ttfamily\footnotesize,
+		breakatwhitespace=false,         
+		breaklines=true,                 
+		captionpos=b,                    
+		keepspaces=true,                 
+		numbers=left,                    
+		numbersep=5pt,                  
+		showspaces=false,                
+		showstringspaces=false,
+		showtabs=false,                  
+		tabsize=2
+}
+
+\lstdefinestyle{shellstyle}{
+		backgroundcolor=\color{black!5}, 
+		basicstyle=\ttfamily\footnotesize\color{black}, 
+		commentstyle=\color{black}, 
+		keywordstyle=\color{black},
+		numberstyle=\color{black!5},
+		stringstyle=\color{black}, 
+		showspaces=false,
+		showstringspaces=false, 
+		showtabs=false, 
+		tabsize=2, 
+		numbers=none, 
+		breaklines=true
+}
+
+\lstdefinelanguage{x86}{ 
+  keywords={AAA, AAD, AAM, AAS, ADC, ADCB, ADCW, ADCL, ADD, ADDB, ADDW, ADDL, AND, ANDB, ANDW, ANDL,
+        ARPL, BOUND, BSF, BSFL, BSFW, BSR, BSRL, BSRW, BSWAP, BT, BTC, BTCB, BTCW, BTCL, BTR, 
+        BTRB, BTRW, BTRL, BTS, BTSB, BTSW, BTSL, CALL, CBW, CDQ, CLC, CLD, CLI, CLTS, CMC, CMP,
+        CMPB, CMPW, CMPL, CMPS, CMPSB, CMPSD, CMPSW, CMPXCHG, CMPXCHGB, CMPXCHGW, CMPXCHGL,
+        CMPXCHG8B, CPUID, CWDE, DAA, DAS, DEC, DECB, DECW, DECL, DIV, DIVB, DIVW, DIVL, ENTER,
+        HLT, IDIV, IDIVB, IDIVW, IDIVL, IMUL, IMULB, IMULW, IMULL, IN, INB, INW, INL, INC, INCB,
+        INCW, INCL, INS, INSB, INSD, INSW, INT, INT3, INTO, INVD, INVLPG, IRET, IRETD, JA, JAE,
+        JB, JBE, JC, JCXZ, JE, JECXZ, JG, JGE, JL, JLE, JMP, JNA, JNAE, JNB, JNBE, JNC, JNE, JNG,
+        JNGE, JNL, JNLE, JNO, JNP, JNS, JNZ, JO, JP, JPE, JPO, JS, JZ, LAHF, LAR, LCALL, LDS,
+        LEA, LEAVE, LES, LFS, LGDT, LGS, LIDT, LMSW, LOCK, LODSB, LODSD, LODSW, LOOP, LOOPE,
+        LOOPNE, LSL, LSS, LTR, MOV, MOVB, MOVW, MOVL, MOVSB, MOVSD, MOVSW, MOVSX, MOVSXB,
+        MOVSXW, MOVSXL, MOVZX, MOVZXB, MOVZXW, MOVZXL, MUL, MULB, MULW, MULL, NEG, NEGB, NEGW,
+        NEGL, NOP, NOT, NOTB, NOTW, NOTL, OR, ORB, ORW, ORL, OUT, OUTB, OUTW, OUTL, OUTSB, OUTSD,
+        OUTSW, POP, POPL, POPW, POPB, POPA, POPAD, POPF, POPFD, PUSH, PUSHL, PUSHW, PUSHB, PUSHA, 
+        RCLL, RCR, RCRB, RCRW, RCRL, RDMSR, RDPMC, RDTSC, REP, REPE, REPNE, RET, ROL, ROLB, ROLW,
+        ROLL, ROR, RORB, RORW, RORL, SAHF, SAL, SALB, SALW, SALL, SAR, SARB, SARW, SARL, SBB,
+        SBBB, SBBW, SBBL, SCASB, SCASD, SCASW, SETA, SETAE, SETB, SETBE, SETC, SETE, SETG, SETGE,
+        SETL, SETLE, SETNA, SETNAE, SETNB, SETNBE, SETNC, SETNE, SETNG, SETNGE, SETNL, SETNLE,
+        SETNO, SETNP, SETNS, SETNZ, SETO, SETP, SETPE, SETPO, SETS, SETZ, SGDT, SHL, SHLB, SHLW,
+        SHLL, SHLD, SHR, SHRB, SHRW, SHRL, SHRD, SIDT, SLDT, SMSW, STC, STD, STI, STOSB, STOSD,
+        STOSW, STR, SUB, SUBB, SUBW, SUBL, TEST, TESTB, TESTW, TESTL, VERR, VERW, WAIT, WBINVD,
+        XADD, XADDB, XADDW, XADDL, XCHG, XCHGB, XCHGW, XCHGL, XLAT, XLATB, XOR, XORB, XORW, XORL},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{\#},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{riscv}{
+  keywords={
+    LUI, AUIPC,
+    JAL, JALR,
+    BEQ, BNE, BLT, BGE, BLTU, BGEU,
+    LB, LH, LW, LBU, LHU, LD,
+    SB, SH, SW, SD,
+    ADDI, SLTI, SLTIU, XORI, ORI, ANDI,
+    SLLI, SRLI, SRAI,
+    ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND,
+    ADDIW, SLLIW, SRLIW, SRAIW,
+    ADDW, SUBW, SLLW, SRLW, SRAW,
+    MUL, MULH, MULHSU, MULHU, DIV, DIVU, REM, REMU,
+    MULW, DIVW, DIVUW, REMW, REMUW,
+    LR.W, SC.W, AMOSWAP.W, AMOADD.W, AMOXOR.W,
+    AMOAND.W, AMOOR.W, AMOMIN.W, AMOMAX.W,
+    AMOMINU.W, AMOMAXU.W,
+    LR.D, SC.D, AMOSWAP.D, AMOADD.D, AMOXOR.D,
+    AMOAND.D, AMOOR.D, AMOMIN.D, AMOMAX.D,
+    AMOMINU.D, AMOMAXU.D,
+    FLW, FSW,
+    FMADD.S, FMSUB.S, FNMSUB.S, FNMADD.S,
+    FADD.S, FSUB.S, FMUL.S, FDIV.S, FSQRT.S,
+    FSGNJ.S, FSGNJN.S, FSGNJX.S,
+    FMIN.S, FMAX.S,
+    FCVT.W.S, FCVT.WU.S, FCVT.S.W, FCVT.S.WU,
+    FMV.X.W, FMV.W.X,
+    FEQ.S, FLT.S, FLE.S,
+    FLD, FSD,
+    FMADD.D, FMSUB.D, FNMSUB.D, FNMADD.D,
+    FADD.D, FSUB.D, FMUL.D, FDIV.D, FSQRT.D,
+    FSGNJ.D, FSGNJN.D, FSGNJX.D,
+    FMIN.D, FMAX.D,
+    FCVT.W.D, FCVT.WU.D, FCVT.D.W, FCVT.D.WU,
+    FCVT.S.D, FCVT.D.S,
+    FMV.X.D, FMV.D.X,
+    FEQ.D, FLT.D, FLE.D,
+    CSRRW, CSRRS, CSRRC,
+    CSRRWI, CSRRSI, CSRRCI,
+    FENCE.I,
+    FENCE,
+    ECALL, EBREAK,
+    MRET, SRET, URET,
+    WFI,
+    SFENCE.VMA,
+    NOP, LI, LA, MV,
+    NOT, NEG, NEGW,
+    SEQZ, SNEZ, SLTZ, SGTZ,
+    BEQZ, BNEZ, BLEZ, BGEZ, BLTZ, BGTZ,
+    BGT, BLE, BGTU, BLEU,
+    J, JR, RET,
+    CALL, TAIL,
+    RDINSTRET, RDCYCLE, RDTIME,
+    CSRR, CSRW, CSRS, CSRC,
+    CSRWI, CSRSI, CSRCI
+  },
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{\#},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{arm}{
+  keywords={
+    ADC, ADD, AND, BIC, CMN, CMP, EOR, MOV, MVN,
+    RSB, RSC, SBC, SUB, TST, TEQ,
+    MLA, MLS, MUL, SMLAL, SMULL, UMLAL, UMULL,
+    QADD, QSUB, QDADD, QDSUB,
+    QADD16, QADD8, QASX, QSAX,
+    QSUB16, QSUB8, QSAX, QSUBADDX,
+    ASR, LSL, LSR, ROR, RRX,
+    B, BL, BX, BLX,
+    BXJ,
+    BEQ, BNE, BCS, BHS, BCC, BLO,
+    BMI, BPL, BVS, BVC,
+    BHI, BLS, BGE, BLT, BGT, BLE,
+    BAL,
+    LDR, LDRB, LDRH, LDRSB, LDRSH,
+    LDRD, LDM, LDMIA, LDMIB, LDMDA, LDMDB,
+    LDRT, LDRBT, LDRHT, LDRSBT, LDRSHT,
+    STR, STRB, STRH, STRD,
+    STM, STMIA, STMIB, STMDA, STMDB,
+    STRT, STRBT, STRHT,
+    PUSH, POP,
+    SWP, SWPB,
+    REV, REV16, REVSH,
+    BFC, BFI, BFXIL, SBFX, UBFX,
+    CLZ,
+    LDREX, LDREXB, LDREXH, LDREXD,
+    STREX, STREXB, STREXH, STREXD,
+    DMB, DSB, ISB,
+    MCR, MCRR, MRC, MRRC,
+    MRS, MSR,
+    CPS, SETEND, SVC, BKPT,
+    CLREX, WFE, WFI, SEV,
+    YIELD, NOP,
+    VLDR, VSTR,
+    VMOV, VABS, VNEG,
+    VADD, VSUB, VMUL, VDIV,
+    VMLA, VMLS, VNMLA, VNMLS, VNMUL,
+    VMAX, VMIN,
+    VSQRT,
+    VCMP, VCMPE,
+    VCVT,
+    VCLZ, VCLS,
+    VAND, VORR, VEOR, VBIC, VMVN,
+    VLD1, VLD2, VLD3, VLD4,
+    VST1, VST2, VST3, VST4,
+    ADR, ADCS, ADDS, SUBS, MOVS, ANDS, ORRS, EORS
+  },
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{@},
+  morecomment=[l]{;},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{style=codestyle, language=C}
+
+% disponi sezioni
+\usepackage{titlesec}
+
+\titleformat{\section}
+	{\sffamily\Large\bfseries} 
+	{\thesection}{1em}{} 
+\titleformat{\subsection}
+	{\sffamily\large\bfseries}   
+	{\thesubsection}{1em}{} 
+\titleformat{\subsubsection}
+	{\sffamily\normalsize\bfseries} 
+	{\thesubsubsection}{1em}{}
+
+% tikz
+\usepackage{tikz}
+
+% float
+\usepackage{float}
+
+% grafici
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+% disponi alberi
+\usepackage{forest}
+
+\forestset{
+	rectstyle/.style={
+		for tree={rectangle,draw,font=\large\sffamily}
+	},
+	roundstyle/.style={
+		for tree={circle,draw,font=\large}
+	}
+}
+
+% disponi algoritmi
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\makeatletter
+\renewcommand{\ALG@name}{Algorithm}
+\makeatother
+
+% disponi numeri di pagina
+\usepackage{fancyhdr}
+\fancyhf{} 
+\fancyfoot[L]{\sffamily{\thepage}}
+
+\makeatletter
+\fancyhead[L]{\raisebox{1ex}[0pt][0pt]{\sffamily{\@title \ \@date}}} 
+\fancyhead[R]{\raisebox{1ex}[0pt][0pt]{\sffamily{\@author}}}
+\makeatother
+
+\begin{document}
+% sezione (data)
+\section{Lesson 29-10-26}
+
+% stili pagina
+\thispagestyle{empty}
+\pagestyle{fancy}
+
+% testo
+We hit the ground running from the previous lesson, continuing to focus on real time scheduling algorithms for real time systems.
+
+\subsection{Mixed job sets}
+
+We understood that real systems mix both kinds of work:
+\begin{itemize}
+	\item \textbf{Periodic tasks}: time-driven, critical control loops with hard deadlines; 
+	\item \textbf{Aperiodic jobs}: event-driven (a button, a message, a fault); hard, soft or no deadline; arrival time not known in advance.
+\end{itemize}
+
+For mixed sets, let's forget the fact that aperiodic jobs have deadlines and assume that aperiodic jobs are served first come, first served (\textbf{FCFS}) among themselves (same arrival: lowest identifier).
+For periodic tasks let's stick to \textbf{RM} (7.1.1).
+
+Three ways to serve them: in \textbf{background}, with a \textbf{polling server}, and with a \textbf{deferrable server}.
+
+\subsubsection{Background scheduling}
+
+In \textbf{background} scheduling the periodic tasks run with \textit{RM}, an aperiodic job runs only when no periodic job is ready.
+This is the simplest to implement (requires basically no implementation) and focuses on periodic jobs as first-class.
+
+We keep two ready queues: periodic (RM priority) and aperiodic (FCFS). The aperiodic queue is served only when the periodic one is empty.
+A periodic release preempts the aperiodic job at once (focus on periodic jobs).
+The periodic schedule is exactly the RM schedule without the aperiodic jobs: we only use the free slots left by RM if possible. 
+This means the aperiodic response is the time that is left: it depends on the periodic load.
+
+The problem of background scheduling is this last point: we know that in fact aperiodic tasks have deadlines, and with this approach we ignore them. This means that if the periodic task set utilizes the CPU fully (or almost fully) we might get serious aging problems of the aperiodic tasks, if not not executing them at all.
+
+\subsubsection{Polling server}
+
+A server is a periodic task created to run aperiodic jobs. It has a period (like any periodic task) $T_s$ and a budget (capacity) $C_s$: the time it may use in each period. Its utilisation is $U_s = \frac{C_s}{T_s}$.
+
+The polling server is scheduled with \textbf{RM} like any other periodic task: its priority comes from $T_s$. If $T_s$ equals the period of a task, both have the same RM priority: the task runs first.
+
+At each period start the budget si set to $C_s$. It never accumulates.
+The server runs only when it has budget and an aperiodic job is pending; each slot it runs costs 1 unit.
+Now:
+\begin{itemize}
+	\item If no job is pending at its activation (the period start): the budget is lost (0) until the next period;
+	\item If the queue becomes empty while it has budget left: the rest of the budget is lost;
+	\item A job that arrives during a period is served in that period only if the budget is still there (a job was pending at the activation and the queue has not emptied yet); otherwise it waits for the next period (because the budget is lost).
+\end{itemize}
+
+\par\smallskip
+
+
+There's a feasibility bound for the polling server:
+$$
+P = \prod_i^n (U_i + 1) \leq \frac{2}{U_s + 1}
+$$
+
+Where $U_s$ refers to the server utilization given maximum capacity $C_s$:
+$$
+U_s = \frac{C_s}{T_s}, \quad U_i = \frac{C_i}{T_i}
+$$
+
+This bound is only \textit{sufficient}, necessary (see 7.1.2 or the Liu-Layland notes).
+In fact, this is basically Liu-Layland including the server task at maximum capacity:
+$$
+\prod_i^n (U_i + 1) \cdot (U_s + 1) \leq 2
+$$
+is also valid.
+
+This bound is useful for determining the polling server \textit{capacity}, that is \textbf{sizing} the polling server.
+We solve the test for $U_s$: the largest server utilisation is:
+$$
+{U_s}_\text{max} = (2 - P) / P
+$$
+Where $P$ is the product of other tasks.
+As a rule of thumb:
+\begin{itemize}
+	\item $T_s$ is set equal to the shortest period: the server gets the highest priority (equal to that task, which runs first);
+	\item $C_s = U_s \cdot T_s$ with $U_s \leq {U_s}_\text{max}$; at the exam, the largest integer $C_s$.
+\end{itemize}
+
+\subsubsection{Deferrable server}
+
+The polling server wastes its budget when no job is pending at the right moment, so a job that arrives just after waits a whole period. The deferrable server keeps the budget.
+
+We assume the same parameters $C_s$, $T_s$, same RM priority from $T_s$ (it loses a tie with a task of the same period).
+The difference is that it keeps its budget until the end of its period, even when no job is pending.
+It serves an aperiodic job at any time while budget is left: an arriving job can preempt a lower-priority task at once.
+At each period start the budget is set back to $C_s$: not added to what is left.
+
+This is way better at servicing aperiodic tasks.
+The price is \textbf{back-to-back} execution: the deferrable server can use its budget at the end of one period and again at the start of the next.
+Up to $2C_s$ can be used in a row, without servicing any other task.
+
+\par\smallskip
+
+Because of this last consideration, we know that the deferrable server is not a plain periodic task: back-to-back it can run $2C_s$ in a row, so it needs its own test (sufficient only):
+$$
+P = \prod_i^n (U_i + 1) \leq \frac{U_s + 2}{2 U_s + 1}
+$$
+
+This bound is also useful for sizing the polling server:
+$$
+{U_s}_\text{max} = \frac{(2 - P)}{2P - 1}
+$$
+Same as above, we have a rule of thumb:
+\begin{itemize}
+	\item $T_s$ is set equal to the shortest period: the server gets the highest priority (equal to that task, which runs first);
+	\item $C_s = U_s \cdot T_s$ with $U_s \leq {U_s}_\text{max}$; at the exam, the largest integer $C_s$.
+\end{itemize}
+
+\subsection{Sources of unpredictability}
+
+Every test of this week assumes that C is a true upper bound (the \textit{Worst Case Execution Time}, \textbf{WCET}) and that nothing else takes the CPU. A real system must be predictable: its timing can be bounded in advance.
+Sources of unpredictability around the CPU: DMA steals bus cycles; cache hit or miss varies execution time; interrupts cause unbounded preemption; system calls run in non-preemptive kernel sections; memory management adds paging and allocation delays. All make WCET and response time hard to bound.
+
+\begin{itemize}
+	\item \textbf{DMA}: the DMA controller and the CPU share the bus. In burst mode the CPU waits for a whole block; in cycle stealing it waits one word at a time. Fix: a time-sliced bus (fixed slots for CPU and DMA): slower, but the task time no longer depends on the transfer;
+
+	\item \textbf{Cache}: a hit is fast, a miss is slow. The average improves, the worst case is hard to compute; each preemption destroys locality and adds misses (one measure on a PowerPC: WCET +33\%). Fix: disable or lock the cache, or a larger, safe WCET;
+
+	\item \textbf{Interrupts}: an ISR preempts any task, and the number of interrupts in a window is hard to bound. Fix: a very short ISR that only wakes a task that does the work, scheduled with its own priority; or treat the device as aperiodic jobs served by a server, as in this unit;
+
+	\item \textbf{System calls}: a non-preemptible kernel section delays even the highest-priority task. Their time must be known and bounded, and the kernel made preemptible;
+
+	\item \textbf{Memory management}: paging and dynamic allocation take a time that depends on the state of memory. Real-time code allocates at start-up, avoids recursion and unbounded loops.
+\end{itemize}
+
+\end{document}
