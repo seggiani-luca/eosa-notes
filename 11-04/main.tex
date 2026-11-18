@@ -399,12 +399,12 @@ On one CPU, a task loses the CPU only in two ways: an interrupt (the tick, then 
 
 This, though, is quite limited and applies to small things we basically alerady saw, \textit{inside} the kernel:
 \begin{itemize}
-	\item 
-\textbf{Privileged only}: \texttt{cpsid i} changes PRIMASK only in privileged mode. Our tasks are unprivileged, and in unprivileged mode the instruction is simply ignored: no fault, no effect. That is on purpose: a task that could mask interrupts could stop the tick and keep the CPU for ever, and the whole protection layer would be useless; 
 	\item
-\textbf{Latency}: while interrupts are masked, every interrupt waits, even an urgent one that has nothing to do with the shared data. The section must be very short;
+	      \textbf{Privileged only}: \texttt{cpsid i} changes PRIMASK only in privileged mode. Our tasks are unprivileged, and in unprivileged mode the instruction is simply ignored: no fault, no effect. That is on purpose: a task that could mask interrupts could stop the tick and keep the CPU for ever, and the whole protection layer would be useless;
 	\item
-\textbf{One CPU} only: on a chip with two cores, masking on core 0 does nothing to core 1, which keeps running and can enter the same section at the same time.
+	      \textbf{Latency}: while interrupts are masked, every interrupt waits, even an urgent one that has nothing to do with the shared data. The section must be very short;
+	\item
+	      \textbf{One CPU} only: on a chip with two cores, masking on core 0 does nothing to core 1, which keeps running and can enter the same section at the same time.
 \end{itemize}
 
 So masking is a good tool inside the kernel, for a few instructions. Tasks need something else: we can't give them access to interrupt masking as is.
@@ -412,7 +412,7 @@ So masking is a good tool inside the kernel, for a few instructions. Tasks need 
 \subsubsection{Test-and-set flags}
 
 A shared flag in memory is useless as it suffers from the exact problem we're trying to solve.
-We can do with some hardware help. 
+We can do with some hardware help.
 The fix needs the read and the write of the flag to be one atomic step: an atomic read-modify-write.
 The classic one is \textbf{test-and-set}: in one step, read the old value of a word and write 1 into it.
 

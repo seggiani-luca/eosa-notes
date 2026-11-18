@@ -407,7 +407,7 @@ Every call that can block takes a timeout, in ticks. It says how long the task a
 Different timeout values possible:
 \begin{itemize}
 	\item \texttt{0}: on resource unavailable, it doesn't block and returns at once with a failure code;
-	\item \texttt{pdMS\_TO\_TICKS( N ) }, blocks for at most $N$ ticks, then returns. Of course if the resource wasn't taken it returns with a failure code; 
+	\item \texttt{pdMS\_TO\_TICKS( N ) }, blocks for at most $N$ ticks, then returns. Of course if the resource wasn't taken it returns with a failure code;
 	\item \texttt{portMAX\_DELAY}, blocks for as long as it takes (potentially forever!).
 \end{itemize}
 

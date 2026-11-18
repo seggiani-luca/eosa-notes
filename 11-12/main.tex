@@ -393,13 +393,13 @@ Let's look at how each condition can be prevented:
 	\item \textbf{No preemption}: if the second take fails, give back what you hold, and retry later. The problem is that this is hell for programmers, and the work done so far may have to be redone;
 	\item \textbf{Circular wait}: we can use \textit{lock ordering}: all tasks take resources in one global order every programmer must follow the rule. This is actually used, for instance in DB management systems.
 
-We give every mutex a number. Every task takes the mutexes it needs in increasing order of their numbers.
-This makes cycles impossible.
-Suppose there is a cycle: $T_1$ holds $M_a$ and waits for $M_b$, $T_2$ holds $M_b$ and waits for $M_c$, and so on, up to $T_n$, which holds $M_z$ and waits for $M_a$.
-Each task holds a mutex and waits for one with a higher number.
-That is impossible: a number cannot be smaller than itself. So no cycle exists.
+	      We give every mutex a number. Every task takes the mutexes it needs in increasing order of their numbers.
+	      This makes cycles impossible.
+	      Suppose there is a cycle: $T_1$ holds $M_a$ and waits for $M_b$, $T_2$ holds $M_b$ and waits for $M_c$, and so on, up to $T_n$, which holds $M_z$ and waits for $M_a$.
+	      Each task holds a mutex and waits for one with a higher number.
+	      That is impossible: a number cannot be smaller than itself. So no cycle exists.
 
-A task that holds $M_2$ and then finds it also needs $M_1$ must give back $M_2$, take $M_1$, and then take $M_2$ again. While $M_2$ was free, others may have changed the data it protects, so the task must check that data again.
+	      A task that holds $M_2$ and then finds it also needs $M_1$ must give back $M_2$, take $M_1$, and then take $M_2$ again. While $M_2$ was free, others may have changed the data it protects, so the task must check that data again.
 \end{itemize}
 
 \subsubsection{Avoidance}
@@ -413,10 +413,10 @@ hard to know, and the check runs at every request.
 
 The kernel lets deadlocks happen, and looks for them from time to time:
 \begin{itemize}
-	\item 
-\textbf{Detect}: build the graph of who waits for whom, and search for a cycle;
 	\item
-\textbf{Recover}: stop a task in the cycle, or take a resource away from it. The hard part is what to do with the half-finished work.
+	      \textbf{Detect}: build the graph of who waits for whom, and search for a cycle;
+	\item
+	      \textbf{Recover}: stop a task in the cycle, or take a resource away from it. The hard part is what to do with the half-finished work.
 \end{itemize}
 
 A simpler version is common in practice: a task that watches whether others still make progress (a \textit{watchdog}). It does not prove a deadlock, only that nothing moves.
@@ -434,24 +434,24 @@ So far tasks have had shared memory and protected it. \textbf{Message passing} i
 \end{center}
 
 \begin{itemize}
-\item\textbf{Naming}: who is addressed?
-\begin{itemize}
-\item \textbf{Direct}: \texttt{send( T2, m )}, \texttt{receive( T1, m )}. Tasks name each other. Simple, but changing a task means changing all those that name it;
-\item \textbf{Indirect}: \texttt{send( Q, m )}, \texttt{receive( Q, m )}. Tasks name an object in between, a mailbox. A FreeRTOS queue is one. The sender does not know who receives, and several tasks can send or receive.
-\end{itemize}
-\item \textbf{Synchronization}: does the call wait?
-\begin{itemize}
-\item \textbf{Synchronous} (blocking): send waits until the receiver has the message, or receive waits until a message
-arrives;
-\item \textbf{Asynchronous} (non-blocking): the call returns at once, whether or not the operation could complete
-If both send and receive wait for each other, the two tasks meet at the same point: a rendezvous.
-\end{itemize}
-\item \textbf{Buffering}: how many messages can wait?
-\begin{itemize}
-\item \textbf{Zero}: no slots. The sender waits until the receiver takes the message: always a rendezvous
-\item \textbf{Bounded}: N slots. The sender waits only when all N are full
-Unbounded: no limit, so the sender never waits. Real memory is finite, so this is only a mode
-\end{itemize}
+	\item\textbf{Naming}: who is addressed?
+	      \begin{itemize}
+		      \item \textbf{Direct}: \texttt{send( T2, m )}, \texttt{receive( T1, m )}. Tasks name each other. Simple, but changing a task means changing all those that name it;
+		      \item \textbf{Indirect}: \texttt{send( Q, m )}, \texttt{receive( Q, m )}. Tasks name an object in between, a mailbox. A FreeRTOS queue is one. The sender does not know who receives, and several tasks can send or receive.
+	      \end{itemize}
+	\item \textbf{Synchronization}: does the call wait?
+	      \begin{itemize}
+		      \item \textbf{Synchronous} (blocking): send waits until the receiver has the message, or receive waits until a message
+		            arrives;
+		      \item \textbf{Asynchronous} (non-blocking): the call returns at once, whether or not the operation could complete
+		            If both send and receive wait for each other, the two tasks meet at the same point: a rendezvous.
+	      \end{itemize}
+	\item \textbf{Buffering}: how many messages can wait?
+	      \begin{itemize}
+		      \item \textbf{Zero}: no slots. The sender waits until the receiver takes the message: always a rendezvous
+		      \item \textbf{Bounded}: N slots. The sender waits only when all N are full
+		            Unbounded: no limit, so the sender never waits. Real memory is finite, so this is only a mode
+	      \end{itemize}
 \end{itemize}
 
 FreeRTOS fits in this classification: it is \textit{indirect} (message queues), \textit{bounded}, and \textit{blocking} when full. As we saw in the last lesson, it can be made \textit{non-blocking} by specifying a max delay of 0.
